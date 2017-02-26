@@ -1,3 +1,4 @@
+import java.awt.Image;
 import java.io.File;
 
 import javax.swing.ImageIcon;
@@ -77,9 +78,14 @@ public class ImageViewer extends javax.swing.JFrame {
             for(File f : fileSelections) {
             	System.out.println(f.getName());
             }
-            
+            ImageIcon imageIcon = new ImageIcon(fileSelections[0].toString()); // load the image to a imageIcon
+            Image image = imageIcon.getImage(); // transform it 
+            if(image.getWidth(null) > 1200 && image.getHeight(null)> 600) {
+            	Image newimg = image.getScaledInstance(1100, 640,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+            	imageIcon = new ImageIcon(newimg);  // transform it back
+            }
             //set icon
-            jlab.setIcon(new ImageIcon(fileSelections[0].toString()));
+            jlab.setIcon(imageIcon);
             //alignment
             jlab.setHorizontalAlignment(JLabel.CENTER);
             //add jLabel to scroll pane
