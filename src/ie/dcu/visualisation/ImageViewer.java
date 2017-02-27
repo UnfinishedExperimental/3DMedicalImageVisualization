@@ -16,6 +16,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /** This class is an entry point of the simple image viewer.
  */
@@ -62,6 +64,14 @@ public class ImageViewer extends JFrame {
         });
         //Image slider.
         imageSlider = new JSlider(JSlider.HORIZONTAL, SLIDE_MIN, SLIDE_MAX, SLIDE_INIT);
+        imageSlider.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent evt) {
+            	changeSliderActionPerformed(evt);
+            }
+
+			
+          });
+        
         imageMenu.add(openImageExplorer);
         clearImageArea.setText("Clear");
         clearImageArea.addActionListener(new ActionListener() {
@@ -77,16 +87,13 @@ public class ImageViewer extends JFrame {
         getContentPane().setLayout(layout);
 
         layout.setHorizontalGroup(
-                layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                .addGroup(GroupLayout.Alignment.CENTER, layout.createSequentialGroup()
-                    .addContainerGap(25, Short.MAX_VALUE)
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                     .addComponent(imageScroller, GroupLayout.DEFAULT_SIZE, 1200, Short.MAX_VALUE)
-                    .addComponent(imageSlider, GroupLayout.PREFERRED_SIZE, 400, GroupLayout.PREFERRED_SIZE)
-                    )
+                    .addComponent(imageSlider, GroupLayout.PREFERRED_SIZE, 1200, GroupLayout.PREFERRED_SIZE)
             );
             layout.setVerticalGroup(
-                layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                .addGroup(GroupLayout.Alignment.CENTER, layout.createSequentialGroup()
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addGroup(GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                     .addContainerGap(25, Short.MAX_VALUE)
                     .addComponent(imageScroller, GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
                     .addGap(50, 50, 50)
@@ -96,6 +103,10 @@ public class ImageViewer extends JFrame {
         pack();
     }
 
+    private void changeSliderActionPerformed(ChangeEvent evt) {
+    	System.out.println("Changing Slider Value:" + SLIDE_MAX);
+	}
+    
     private void openImageExplorerActionPerformed(ActionEvent evt) {
         //create file chooser to select medical images
     	JFileChooser chooser = new JFileChooser();
@@ -104,6 +115,7 @@ public class ImageViewer extends JFrame {
             //get selected image files
             File[] fileSelections = chooser.getSelectedFiles();
             SLIDE_MAX = fileSelections.length;
+            imageSlider.setMaximum(SLIDE_MAX);
             for(File f : fileSelections) {
             	System.out.println(f.getName());
             }
