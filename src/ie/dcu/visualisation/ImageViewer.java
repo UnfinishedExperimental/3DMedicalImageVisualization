@@ -105,7 +105,8 @@ public class ImageViewer extends JFrame {
     }
 
     private void changeSliderActionPerformed(ChangeEvent evt) {
-    	int imageSliderNum = imageSlider.getValue()-1;
+    	int imageSliderNum = imageSlider.getValue();
+    	System.out.println("Max Value: " + SLIDE_MAX + " and value here: " + imageSliderNum);
     	ImageIcon imageIcon = new ImageIcon(fileSelections[imageSliderNum].toString());
     	scaleAndSetImage(imageIcon);
 	}
@@ -118,7 +119,7 @@ public class ImageViewer extends JFrame {
             //get selected image files
             fileSelections = chooser.getSelectedFiles();
             SLIDE_MAX = fileSelections.length;
-            imageSlider.setMaximum(SLIDE_MAX);
+            imageSlider.setMaximum(SLIDE_MAX-1);
             ImageIcon imageIcon = new ImageIcon(fileSelections[0].toString()); // load the image to a imageIcon
             scaleAndSetImage(imageIcon);
         }
