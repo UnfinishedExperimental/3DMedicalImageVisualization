@@ -29,6 +29,7 @@ public class ImageViewer extends JFrame {
     private JMenuBar imageMenuBar;
     private JScrollPane imageScroller;
     private JSlider imageSlider;
+    private File[] fileSelections;
     //create a label
     JLabel jlab = new JLabel();
     // Slider variables
@@ -104,7 +105,9 @@ public class ImageViewer extends JFrame {
     }
 
     private void changeSliderActionPerformed(ChangeEvent evt) {
-    	System.out.println("Changing Slider Value:" + SLIDE_MAX);
+    	int imageSliderNum = imageSlider.getValue()-1;
+    	ImageIcon imageIcon = new ImageIcon(fileSelections[imageSliderNum].toString());
+    	scaleAndSetImage(imageIcon);
 	}
     
     private void openImageExplorerActionPerformed(ActionEvent evt) {
@@ -113,27 +116,27 @@ public class ImageViewer extends JFrame {
     	chooser.setMultiSelectionEnabled(true);
         if(chooser.showOpenDialog(imageMenu) == JFileChooser.APPROVE_OPTION){
             //get selected image files
-            File[] fileSelections = chooser.getSelectedFiles();
+            fileSelections = chooser.getSelectedFiles();
             SLIDE_MAX = fileSelections.length;
             imageSlider.setMaximum(SLIDE_MAX);
-            for(File f : fileSelections) {
-            	System.out.println(f.getName());
-            }
             ImageIcon imageIcon = new ImageIcon(fileSelections[0].toString()); // load the image to a imageIcon
-            Image image = imageIcon.getImage(); // transform it 
-            if(image.getWidth(null) > 1200 && image.getHeight(null)> 600) {
-            	Image newimg = image.getScaledInstance(1100, 640,  Image.SCALE_SMOOTH); // scale it the smooth way  
-            	imageIcon = new ImageIcon(newimg);  // transform it back
-            }
-            //set icon
-            jlab.setIcon(imageIcon);
-            //alignment
-            jlab.setHorizontalAlignment(JLabel.CENTER);
-            //add jLabel to scroll pane
-            imageScroller.getViewport().add(jlab);
-            //imageScroller.getViewport().add(imageSlider);
+            scaleAndSetImage(imageIcon);
         }
     }
+
+	private void scaleAndSetImage(ImageIcon imageIcon) {
+		Image image = imageIcon.getImage(); // transform it 
+		if(image.getWidth(null) > 1200 && image.getHeight(null)> 600) {
+			Image newimg = image.getScaledInstance(1100, 640,  Image.SCALE_SMOOTH); // scale it the smooth way  
+			imageIcon = new ImageIcon(newimg);  // transform it back
+		}
+		//set icon
+		jlab.setIcon(imageIcon);
+		//alignment
+		jlab.setHorizontalAlignment(JLabel.CENTER);
+		//add jLabel to scroll pane
+		imageScroller.getViewport().add(jlab);
+	}
 
     private void clearImageAreaActionPerformed(ActionEvent evt) {//GEN-FIRST:event_clearImageAreaActionPerformed
         jlab.setIcon(null);
