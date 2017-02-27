@@ -1,7 +1,10 @@
 package ie.dcu.visualisation;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
+import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -11,6 +14,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 /** This class is an entry point of the simple image viewer.
  */
@@ -26,7 +31,7 @@ public class ImageViewer extends JFrame {
     JLabel jlab = new JLabel();
     // Slider variables
     static int SLIDE_MIN = 0;
-    static int SLIDE_MAX = 30;
+    static int SLIDE_MAX = 100;
     static int SLIDE_INIT = 0;
     // End of variables declaration
     /**
@@ -47,11 +52,11 @@ public class ImageViewer extends JFrame {
         openImageExplorer = new JMenuItem();
         clearImageArea = new JMenuItem();
       
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         imageMenu.setText("File");
         openImageExplorer.setText("Open");
-        openImageExplorer.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        openImageExplorer.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 openImageExplorerActionPerformed(evt);
             }
         });
@@ -59,8 +64,8 @@ public class ImageViewer extends JFrame {
         imageSlider = new JSlider(JSlider.HORIZONTAL, SLIDE_MIN, SLIDE_MAX, SLIDE_INIT);
         imageMenu.add(openImageExplorer);
         clearImageArea.setText("Clear");
-        clearImageArea.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        clearImageArea.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 clearImageAreaActionPerformed(evt);
             }
         });
@@ -68,33 +73,30 @@ public class ImageViewer extends JFrame {
         imageMenuBar.add(imageMenu);
         setJMenuBar(imageMenuBar);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
 
         layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                .addGroup(GroupLayout.Alignment.CENTER, layout.createSequentialGroup()
                     .addContainerGap(25, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(imageScroller, javax.swing.GroupLayout.DEFAULT_SIZE, 1200, Short.MAX_VALUE)
-                        )
-                    .addComponent(imageSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(imageScroller, GroupLayout.DEFAULT_SIZE, 1200, Short.MAX_VALUE)
+                    .addComponent(imageSlider, GroupLayout.PREFERRED_SIZE, 400, GroupLayout.PREFERRED_SIZE)
                     )
             );
             layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                .addGroup(GroupLayout.Alignment.CENTER, layout.createSequentialGroup()
                     .addContainerGap(25, Short.MAX_VALUE)
-                    .addComponent(imageScroller, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
-                    .addGap(143, 143, 143))
-                .addGroup(layout.createSequentialGroup()
-                    .addComponent(imageSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(imageScroller, GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
+                    .addGap(50, 50, 50)
+                    .addComponent(imageSlider, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     )
             );
         pack();
     }
 
-    private void openImageExplorerActionPerformed(java.awt.event.ActionEvent evt) {
+    private void openImageExplorerActionPerformed(ActionEvent evt) {
         //create file chooser to select medical images
     	JFileChooser chooser = new JFileChooser();
     	chooser.setMultiSelectionEnabled(true);
@@ -108,7 +110,7 @@ public class ImageViewer extends JFrame {
             ImageIcon imageIcon = new ImageIcon(fileSelections[0].toString()); // load the image to a imageIcon
             Image image = imageIcon.getImage(); // transform it 
             if(image.getWidth(null) > 1200 && image.getHeight(null)> 600) {
-            	Image newimg = image.getScaledInstance(1100, 640,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+            	Image newimg = image.getScaledInstance(1100, 640,  Image.SCALE_SMOOTH); // scale it the smooth way  
             	imageIcon = new ImageIcon(newimg);  // transform it back
             }
             //set icon
@@ -121,7 +123,7 @@ public class ImageViewer extends JFrame {
         }
     }
 
-    private void clearImageAreaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearImageAreaActionPerformed
+    private void clearImageAreaActionPerformed(ActionEvent evt) {//GEN-FIRST:event_clearImageAreaActionPerformed
         jlab.setIcon(null);
     }
 
@@ -130,9 +132,9 @@ public class ImageViewer extends JFrame {
         /* If Nimbus is not available, stay with the default look and feel.
          */
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
