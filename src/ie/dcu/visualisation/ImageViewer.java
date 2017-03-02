@@ -2,6 +2,7 @@ package ie.dcu.visualisation;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
 import javax.swing.GroupLayout;
@@ -32,10 +33,6 @@ public class ImageViewer extends JFrame {
     private File[] fileSelections;
     //create a label
     JLabel jlab = new JLabel();
-    // Slider variables
-    static int SLIDE_MIN = 0;
-    static int SLIDE_MAX = 100;
-    static int SLIDE_INIT = 0;
     // End of variables declaration
     /**
      * ImageViewer constructor which initialize the image frame with components
@@ -64,7 +61,7 @@ public class ImageViewer extends JFrame {
             }
         });
         //Image slider.
-        imageSlider = new JSlider(JSlider.HORIZONTAL, SLIDE_MIN, SLIDE_MAX, SLIDE_INIT);
+        imageSlider = new JSlider(JSlider.HORIZONTAL, ImageConstants.SLIDE_MIN, ImageConstants.SLIDE_MAX, ImageConstants.SLIDE_INIT);
         imageSlider.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent evt) {
             	changeSliderActionPerformed(evt);
@@ -97,7 +94,7 @@ public class ImageViewer extends JFrame {
                 .addGroup(GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                     .addContainerGap(25, Short.MAX_VALUE)
                     .addComponent(imageScroller, GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
-                    .addGap(50, 50, 50)
+                    .addGap(10, 10, 10)
                     .addComponent(imageSlider, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     )
             );
@@ -106,7 +103,7 @@ public class ImageViewer extends JFrame {
 
     private void changeSliderActionPerformed(ChangeEvent evt) {
     	int imageSliderNum = imageSlider.getValue();
-    	System.out.println("Max Value: " + SLIDE_MAX + " and value here: " + imageSliderNum);
+    	System.out.println("Max Value: " + ImageConstants.SLIDE_MAX + " and value here: " + imageSliderNum);
     	ImageIcon imageIcon = new ImageIcon(fileSelections[imageSliderNum].toString());
     	scaleAndSetImage(imageIcon);
 	}
@@ -118,12 +115,18 @@ public class ImageViewer extends JFrame {
         if(chooser.showOpenDialog(imageMenu) == JFileChooser.APPROVE_OPTION){
             //get selected image files
             fileSelections = chooser.getSelectedFiles();
-            SLIDE_MAX = fileSelections.length;
-            imageSlider.setMaximum(SLIDE_MAX-1);
+            ImageConstants.SLIDE_MAX = fileSelections.length;
+            imageSlider.setMaximum(ImageConstants.SLIDE_MAX-1);
+            //extractDataFromRawImage(fileSelections[0].toString());
+            //BufferedImage image = new BufferedImage(ImageConstants.COLUMNS, ImageConstants.ROWS, BufferedImage.TYPE_INT_ARGB);
             ImageIcon imageIcon = new ImageIcon(fileSelections[0].toString()); // load the image to a imageIcon
             scaleAndSetImage(imageIcon);
         }
     }
+
+	private void extractDataFromRawImage(String string) {
+		
+	}
 
 	private void scaleAndSetImage(ImageIcon imageIcon) {
 		Image image = imageIcon.getImage(); // transform it 
