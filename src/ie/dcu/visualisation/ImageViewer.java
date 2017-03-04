@@ -112,9 +112,8 @@ public class ImageViewer extends JFrame {
 
     private void changeSliderActionPerformed(ChangeEvent evt) {
     	int imageSliderNum = imageSlider.getValue();
-    	System.out.println("Max Value: " + ImageConstants.SLIDE_MAX + " and value here: " + imageSliderNum);
-    	ImageIcon imageIcon = new ImageIcon(fileSelections[imageSliderNum].toString());
-    	scaleAndSetImage(imageIcon);
+    	//System.out.println("Max Value: " + ImageConstants.SLIDE_MAX + " and value here: " + imageSliderNum);
+    	imageFileProcess(fileSelections[imageSliderNum].toString());
 	}
     
     private void openImageExplorerActionPerformed(ActionEvent evt) {
@@ -126,31 +125,12 @@ public class ImageViewer extends JFrame {
             fileSelections = chooser.getSelectedFiles();
             ImageConstants.SLIDE_MAX = fileSelections.length;
             imageSlider.setMaximum(ImageConstants.SLIDE_MAX-1);
-            createBufferImageFromRawPixelData(fileSelections[0].toString());
-            BufferedImage image = new BufferedImage(ImageConstants.COLUMNS, ImageConstants.ROWS, BufferedImage.TYPE_INT_ARGB);
-    		for(int y=0; y<ImageConstants.ROWS; y++) {
-    			for(int x=0; x<ImageConstants.COLUMNS; x++) {
-    				int sample = pixelData[sampleIndex++] & 0x0FFF;
-    				if(sample < min) {
-    					min = sample;
-    				} 
-    				if(sample > max) {
-    					max = sample;
-    				}
-    				System.out.println("Sample x: " + x + "Sample y: " +y + "value: " + sample);
-    				image.setRGB(x,y,0xff000000 | (sample << 16) | (sample << 8) | sample);
-    			}
-    		}
-    		
-    		System.out.println("Min: " + min);
-    		System.out.println("Max: " + max);
-            ImageIcon imageIcon = new ImageIcon(fileSelections[0].toString()); // load the image to a imageIcon
-            scaleAndSetImage(imageIcon);
+            imageFileProcess(fileSelections[0].toString());
         }
     }
 
-	private void createBufferImageFromRawPixelData(String imageName) {
-		File rawImageFile = new File(imageName);
+	private void imageFileProcess(String imageFile) {
+		File rawImageFile = new File(imageFile);
 		try {
 			inputStream = new FileInputStream(rawImageFile);
 			//System.out.println("File Size of Image:: " + rawImageFile.length());
@@ -160,6 +140,36 @@ public class ImageViewer extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		ImageIcon imageIcon = extarctGreyScaleImage();
+		scaleAndSetImage(imageIcon);
+	}
+
+	private ImageIcon extarctGreyScaleImage() {
+		BufferedImage image = new BufferedImage(ImageConstants.COLUMNS, ImageConstants.ROWS, BufferedImage.TYPE_INT_ARGB);
+		for(int y=0; y<ImageConstants.ROWS; y++) {
+			for(int x=0; x<ImageConstants.COLUMNS; x++) {
+				int sample = pixelData[sampleIndex++] & 0x0FFF;
+				if(sample < min) {
+					min = sample;
+				} 
+				if(sample > max) {
+					max = sample;
+				}
+			}
+		}
+		sampleIndex = 0;
+		for(int y=0; y<ImageConstants.ROWS; y++) {
+			for(int x=0; x<ImageConstants.COLUMNS; x++) {
+				int sample = pixelData[sampleIndex++] & 0x0FFF;
+				sample = (((sample - min) * 255) / (max-min)) + 0;
+				//System.out.println("Sample x: " + x + "Sample y: " +y + "value: " + sample);
+				image.setRGB(x,y,0xff000000 | (sample << 16) | (sample << 8) | sample);
+			}
+		}
+		sampleIndex = 0;
+		pixelData = null;
+		ImageIcon imageIcon = new ImageIcon(image); // load the image to a imageIcon
+		return imageIcon;
 	}
 
 	public int[] readBitsPerWord(int fileLength) throws IOException {
