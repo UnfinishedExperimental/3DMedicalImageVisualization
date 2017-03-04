@@ -4,6 +4,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -31,6 +35,11 @@ public class ImageViewer extends JFrame {
     private JScrollPane imageScroller;
     private JSlider imageSlider;
     private File[] fileSelections;
+    private int[] pixelData;
+    private InputStream inputStream;
+    private int sampleIndex = 0;
+    int min = 0;
+    int max = 0;
     //create a label
     JLabel jlab = new JLabel();
     // End of variables declaration
@@ -117,17 +126,60 @@ public class ImageViewer extends JFrame {
             fileSelections = chooser.getSelectedFiles();
             ImageConstants.SLIDE_MAX = fileSelections.length;
             imageSlider.setMaximum(ImageConstants.SLIDE_MAX-1);
-            //extractDataFromRawImage(fileSelections[0].toString());
-            //BufferedImage image = new BufferedImage(ImageConstants.COLUMNS, ImageConstants.ROWS, BufferedImage.TYPE_INT_ARGB);
+            createBufferImageFromRawPixelData(fileSelections[0].toString());
+            BufferedImage image = new BufferedImage(ImageConstants.COLUMNS, ImageConstants.ROWS, BufferedImage.TYPE_INT_ARGB);
+    		for(int y=0; y<ImageConstants.ROWS; y++) {
+    			for(int x=0; x<ImageConstants.COLUMNS; x++) {
+    				int sample = pixelData[sampleIndex++] & 0x0FFF;
+    				if(sample < min) {
+    					min = sample;
+    				} 
+    				if(sample > max) {
+    					max = sample;
+    				}
+    				System.out.println("Sample x: " + x + "Sample y: " +y + "value: " + sample);
+    				image.setRGB(x,y,0xff000000 | (sample << 16) | (sample << 8) | sample);
+    			}
+    		}
+    		
+    		System.out.println("Min: " + min);
+    		System.out.println("Max: " + max);
             ImageIcon imageIcon = new ImageIcon(fileSelections[0].toString()); // load the image to a imageIcon
             scaleAndSetImage(imageIcon);
         }
     }
 
-	private void extractDataFromRawImage(String string) {
-		
+	private void createBufferImageFromRawPixelData(String imageName) {
+		File rawImageFile = new File(imageName);
+		try {
+			inputStream = new FileInputStream(rawImageFile);
+			//System.out.println("File Size of Image:: " + rawImageFile.length());
+			pixelData = readBitsPerWord((int)rawImageFile.length());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
+	public int[] readBitsPerWord(int fileLength) throws IOException {
+		int numberOfWords = fileLength/2;
+		//System.out.println(" numberOfWords:: " + numberOfWords);
+		int[] wordString = new int[numberOfWords];
+		for(int i=0; i<numberOfWords; i++) {
+			wordString[i] = readUInt16Bit();
+			//System.out.println(i + " :: " +wordString[i]);
+		}
+		return wordString;
+	}
+	
+	public int readUInt16Bit() throws IOException {
+		int b1 = inputStream.read();
+		int b0 = inputStream.read();
+		return (b1<<8) | b0;
+	}
+	
+	
 	private void scaleAndSetImage(ImageIcon imageIcon) {
 		Image image = imageIcon.getImage(); // transform it 
 		if(image.getWidth(null) > 1200 && image.getHeight(null)> 600) {
