@@ -27,7 +27,11 @@ import javax.swing.event.ChangeListener;
 /** This class is an entry point of the simple image viewer.
  */
 public class ImageViewer extends JFrame {
-    // Variables declaration
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	// Variables declaration
     private JMenuItem clearImageArea;
     private JMenuItem openImageExplorer;
     private JMenu imageMenu;
@@ -53,7 +57,6 @@ public class ImageViewer extends JFrame {
     /**
      * This method is called from within the constructor to initialize the form.
      */
-    @SuppressWarnings("unchecked")
     private void initComponents() {
         imageScroller = new JScrollPane();
         imageMenuBar = new JMenuBar();
@@ -140,11 +143,11 @@ public class ImageViewer extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		ImageIcon imageIcon = extarctGreyScaleImage();
+		ImageIcon imageIcon = extractGreyScaleImage();
 		scaleAndSetImage(imageIcon);
 	}
 
-	private ImageIcon extarctGreyScaleImage() {
+	private ImageIcon extractGreyScaleImage() {
 		BufferedImage image = new BufferedImage(ImageConstants.COLUMNS, ImageConstants.ROWS, BufferedImage.TYPE_INT_ARGB);
 		for(int y=0; y<ImageConstants.ROWS; y++) {
 			for(int x=0; x<ImageConstants.COLUMNS; x++) {
@@ -162,6 +165,11 @@ public class ImageViewer extends JFrame {
 			for(int x=0; x<ImageConstants.COLUMNS; x++) {
 				int sample = pixelData[sampleIndex++] & 0x0FFF;
 				sample = (((sample - min) * 255) / (max-min)) + 0;
+				if(sample < ImageConstants.THRESHOLD) {
+					sample = ImageConstants.BLACK;
+				} else {
+					sample = ImageConstants.WHITE;
+				}
 				//System.out.println("Sample x: " + x + "Sample y: " +y + "value: " + sample);
 				image.setRGB(x,y,0xff000000 | (sample << 16) | (sample << 8) | sample);
 			}
