@@ -6,11 +6,11 @@ package ie.dcu.model;
  * 
  */
 
-public class MarchingCubeCell {
+public class GridCell {
 	public Point3D vertices[] = new Point3D[8];
 	public float verticeValues[] = new float[8];
 
-	public MarchingCubeCell() {
+	public GridCell() {
 		for (int i = 0; i < 8; i++) {
 			vertices[i] = new Point3D();
 			verticeValues[i] = 0.0f;
