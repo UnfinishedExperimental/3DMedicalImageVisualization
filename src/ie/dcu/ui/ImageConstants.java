@@ -1,4 +1,4 @@
-package ie.dcu.visualisation;
+package ie.dcu.ui;
 
 public class ImageConstants {
 	// UI Slider settings
@@ -11,7 +11,7 @@ public class ImageConstants {
 	public static final int THRESHOLD = 127;
 	public static final int BLACK = 0;
 	public static final int WHITE = 255;
-	// Marching cube Edge Lookup Table
+/*	// Marching cube Edge Lookup Table
 	public static final int EDGE_TBL[] = { // 256
 			0x0, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09,
 			0xf00, 0x190, 0x99, 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c, 0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93,
@@ -288,5 +288,5 @@ public class ImageConstants {
 					{ 1, 3, 8, 9, 1, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
 					{ 0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
 					{ 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
-					{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } };
+					{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } };*/
 }
