@@ -5,6 +5,9 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -37,7 +40,9 @@ public class ImageViewer extends JFrame {
 	private File[] fileSelections;
 	// create a label
 	JLabel jlab = new JLabel();
-	
+	// Path of input raw file data
+	private File rawFileFolder;
+	List<File> rawFilesSorted;
 	ImageProcessUtil imageProcess = new ImageProcessUtil();
 	/**
 	 * ImageViewer constructor which initialize the image frame with components
@@ -92,7 +97,7 @@ public class ImageViewer extends JFrame {
 		mcButton.setEnabled(false);
 		mcButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				// initMarchingCuberActionPerformed(evt);
+				initMarchingCuberActionPerformed(evt);
 			}
 		});
 
@@ -142,6 +147,9 @@ public class ImageViewer extends JFrame {
 			imageProcess.imageFileProcess(fileSelections[0].toString());
 			
 		}
+		chooser.setCurrentDirectory(new File("*"));
+		rawFileFolder = chooser.getCurrentDirectory();
+		//System.out.println("---------::" + rawFilesInPath);
 		animButton.setEnabled(true);
 		mcButton.setEnabled(true);
 	}
@@ -163,7 +171,27 @@ public class ImageViewer extends JFrame {
 		// add jLabel to scroll pane
 		imageScroller.getViewport().add(jlab);
 	}
+
+	public void initMarchingCuberActionPerformed(ActionEvent evt) {// GEN-FIRST:event_clearImageAreaActionPerformed
+		File[] rawFilesSorted = rawFileFolder.listFiles();
+		Arrays.sort(rawFilesSorted, new Comparator<File>() {
+	        public int compare(File f1, File f2) {
+				return Integer.parseInt(f1.getName())-Integer.parseInt(f2.getName());
+	        }
+		});
+		processRawFilesUsingMC(rawFilesSorted);
+		/*for (int i = 0; i < rawFilesSorted.length; i++) {
+			System.out.println(rawFilesSorted[i].getName());
+		}*/
+	}
 	
+	private void processRawFilesUsingMC(File[] rawFiles) {
+		for (int i = 0; i < rawFiles.length-1; i++) {
+			System.out.println(rawFiles[i].getName() + " and " + rawFiles[i+1].getName());
+		}
+		
+	}
+
 	public void clearImageAreaActionPerformed(ActionEvent evt) {// GEN-FIRST:event_clearImageAreaActionPerformed
 		jlab.setIcon(null);
 	}
