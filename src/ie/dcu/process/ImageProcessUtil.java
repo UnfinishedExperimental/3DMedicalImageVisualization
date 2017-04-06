@@ -6,16 +6,21 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 
 public class ImageProcessUtil {
 	private int[] pixelData;
+	public static int[][][] gridSlicesData;
 	private InputStream inputStream;
+
 	private int sampleIndex = 0;
 	int min = 0;
 	int max = 0;
-	public ImageIcon imageFileProcess(String imageFile) {
+	//int ones = 0;
+	//int zeros = 0;
+	public ImageIcon imageFileProcess(boolean changeEvent, int sliceNumber, String imageFile) {
 		File rawImageFile = new File(imageFile);
 		try {
 			inputStream = new FileInputStream(rawImageFile);
@@ -27,11 +32,11 @@ public class ImageProcessUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return extractGreyScaleImage();
+		return extractGreyScaleImage(changeEvent, sliceNumber);
 		
 	}
 	
-	private ImageIcon extractGreyScaleImage() {
+	private ImageIcon extractGreyScaleImage(boolean changeEvent, int sliceNumber) {
 		BufferedImage image = new BufferedImage(ImageConstants.COLUMNS, ImageConstants.ROWS,
 				BufferedImage.TYPE_INT_ARGB);
 		for (int y = 0; y < ImageConstants.ROWS; y++) {
@@ -58,8 +63,22 @@ public class ImageProcessUtil {
 				// System.out.println("Sample x: " + x + "Sample y: " +y +
 				// "value: " + sample);
 				image.setRGB(x, y, 0xff000000 | (sample << 16) | (sample << 8) | sample);
+				if(!changeEvent) {
+					if(sample == ImageConstants.WHITE) {
+						//ones++;
+						gridSlicesData[x][y][sliceNumber] = 1;
+					} else {
+						//zeros++;
+						gridSlicesData[x][y][sliceNumber] = 0;
+					}
+				}
+				
 			}
 		}
+/*		System.out.println("-----11--------" + ones);
+		System.out.println("-----00-------" + zeros);
+		ones=0;
+		zeros=0;*/
 		sampleIndex = 0;
 		pixelData = null;
 		ImageIcon imageIcon = new ImageIcon(image); // load the image to a
@@ -83,4 +102,5 @@ public class ImageProcessUtil {
 		int b0 = inputStream.read();
 		return (b1 << 8) | b0;
 	}
+	
 }

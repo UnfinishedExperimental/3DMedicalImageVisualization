@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.WindowConstants;
@@ -44,6 +46,7 @@ public class ImageViewer extends JFrame {
 	private File rawFileFolder;
 	List<File> rawFilesSorted;
 	ImageProcessUtil imageProcess = new ImageProcessUtil();
+	ArrayList<String> sliceDataSaved[];
 	/**
 	 * ImageViewer constructor which initialize the image frame with components
 	 */
@@ -81,7 +84,7 @@ public class ImageViewer extends JFrame {
 				//System.out.println("-------------" + imageSliderNum);
 				// System.out.println("Max Value: " + ImageConstants.SLIDE_MAX + " and
 				// value here: " + imageSliderNum);
-				ImageIcon imageIcon = imageProcess.imageFileProcess(fileSelections[imageSliderNum].toString());
+				ImageIcon imageIcon = imageProcess.imageFileProcess(true, imageSliderNum, fileSelections[imageSliderNum].toString());
 				scaleAndSetImage(imageIcon);
 			}
 
@@ -143,13 +146,30 @@ public class ImageViewer extends JFrame {
 			// get selected image files
 			fileSelections = chooser.getSelectedFiles();
 			ImageConstants.SLIDE_MAX = fileSelections.length;
+			sliceDataSaved = new ArrayList[fileSelections.length];
+			Arrays.sort(fileSelections, new Comparator<File>() {
+		        public int compare(File f1, File f2) {
+					return Integer.parseInt(f1.getName())-Integer.parseInt(f2.getName());
+		        }
+			});
 			imageSlider.setMaximum(ImageConstants.SLIDE_MAX - 1);
-			imageProcess.imageFileProcess(fileSelections[0].toString());
-			
+			ImageProcessUtil.gridSlicesData = new int[ImageConstants.DIMENTION][ImageConstants.DIMENTION][fileSelections.length];
+			long start = System.currentTimeMillis();
+			for (int i = 0; i < fileSelections.length; i++) {
+				imageProcess.imageFileProcess(false, i, fileSelections[i].toString());
+			}
+			long end = System.currentTimeMillis();
+			System.out.println("Time taken : " + (end - start));
+/*			 System.out.println(Arrays.deepToString(ImageProcessUtil.gridSlicesData));
+			for (int a = 0; a < 512; a++) {
+				for (int b = 0; b < 512; b++) {
+					for (int j = 0; j < fileSelections.length; j++) {
+						System.out.println(ImageProcessUtil.gridSlicesData[a][b][j]);
+					}
+				}
+			}*/
+			JOptionPane.showMessageDialog(null, "Data is written in the array");
 		}
-		chooser.setCurrentDirectory(new File("*"));
-		rawFileFolder = chooser.getCurrentDirectory();
-		//System.out.println("---------::" + rawFilesInPath);
 		animButton.setEnabled(true);
 		mcButton.setEnabled(true);
 	}
@@ -178,18 +198,7 @@ public class ImageViewer extends JFrame {
 	        public int compare(File f1, File f2) {
 				return Integer.parseInt(f1.getName())-Integer.parseInt(f2.getName());
 	        }
-		});
-		processRawFilesUsingMC(rawFilesSorted);
-		/*for (int i = 0; i < rawFilesSorted.length; i++) {
-			System.out.println(rawFilesSorted[i].getName());
-		}*/
-	}
-	
-	private void processRawFilesUsingMC(File[] rawFiles) {
-		for (int i = 0; i < rawFiles.length-1; i++) {
-			System.out.println(rawFiles[i].getName() + " and " + rawFiles[i+1].getName());
-		}
-		
+		}); 
 	}
 
 	public void clearImageAreaActionPerformed(ActionEvent evt) {// GEN-FIRST:event_clearImageAreaActionPerformed

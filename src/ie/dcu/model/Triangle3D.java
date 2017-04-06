@@ -1,4 +1,4 @@
-package ie.dcu.model;
+ package ie.dcu.model;
 
 /*
  * Triangle3D.java

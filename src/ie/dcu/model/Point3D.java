@@ -6,9 +6,9 @@ package ie.dcu.model;
  * 
  */
 public class Point3D {
-	private float x;
-	private float y;
-	private float z;
+	public float x;
+	public float y;
+	public float z;
 	
 	public Point3D() {
 		

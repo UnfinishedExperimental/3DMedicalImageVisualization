@@ -6,6 +6,8 @@ public class ImageConstants {
 	public static int SLIDE_MAX = 100;
 	public static int SLIDE_INIT = 0;
 	// Medical image size settings
+	public final static int DIMENTION = 512;
+	
 	public static final int COLUMNS = 512;
 	public static final int ROWS = 512;
 	public static final int THRESHOLD = 127;
