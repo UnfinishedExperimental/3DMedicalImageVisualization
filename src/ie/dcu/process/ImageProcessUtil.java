@@ -55,6 +55,10 @@ public class ImageProcessUtil {
 			for (int x = 0; x < ImageConstants.COLUMNS; x++) {
 				int sample = pixelData[sampleIndex++] & 0x0FFF;
 				sample = (((sample - min) * 255) / (max - min)) + 0;
+				// Save value in the 3D array
+				if(!changeEvent) {
+					gridSlicesData[x][y][sliceNumber] = sample;
+				}
 				if (sample < ImageConstants.THRESHOLD) {
 					sample = ImageConstants.BLACK;
 				} else {
@@ -63,16 +67,6 @@ public class ImageProcessUtil {
 				// System.out.println("Sample x: " + x + "Sample y: " +y +
 				// "value: " + sample);
 				image.setRGB(x, y, 0xff000000 | (sample << 16) | (sample << 8) | sample);
-				if(!changeEvent) {
-					if(sample == ImageConstants.WHITE) {
-						//ones++;
-						gridSlicesData[x][y][sliceNumber] = 1;
-					} else {
-						//zeros++;
-						gridSlicesData[x][y][sliceNumber] = 0;
-					}
-				}
-				
 			}
 		}
 /*		System.out.println("-----11--------" + ones);

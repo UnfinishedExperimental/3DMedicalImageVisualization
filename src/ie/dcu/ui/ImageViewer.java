@@ -26,6 +26,7 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import ie.dcu.model.MCPolygons;
 import ie.dcu.process.ImageProcessUtil;
 
 public class ImageViewer extends JFrame {
@@ -168,7 +169,9 @@ public class ImageViewer extends JFrame {
 					}
 				}
 			}*/
-			JOptionPane.showMessageDialog(null, "Data is written in the array");
+			MCPolygons mc = new MCPolygons();
+			mc.initiateMCProcess(imageProcess.gridSlicesData, fileSelections.length);
+			// JOptionPane.showMessageDialog(null, "Data is written in the array");
 		}
 		animButton.setEnabled(true);
 		mcButton.setEnabled(true);
