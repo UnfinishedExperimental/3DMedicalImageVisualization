@@ -7,13 +7,13 @@ package ie.dcu.model;
  */
 
 public class GridCell {
-	public Point3D vertices[] = new Point3D[8];
-	public float verticeValues[] = new float[8];
+	public Point3D verticesPosition[] = new Point3D[8];
+	public float verticesPointValue[] = new float[8];
 
 	public GridCell() {
 		for (int i = 0; i < 8; i++) {
-			vertices[i] = new Point3D();
-			verticeValues[i] = 0.0f;
+			verticesPosition[i] = new Point3D();
+			verticesPointValue[i] = 0.0f;
 		}
 	}
 }
