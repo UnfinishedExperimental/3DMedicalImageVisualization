@@ -22,42 +22,51 @@ public class MCPolygons {
     
 	public void initiateMCProcess(int[][][] allSlicesData, int totalSlices) {
 		initResolution();
+		int numPointsInXDirection = ImageConstants.ROWS;
+		int numPointsInSlice = numPointsInXDirection*(ImageConstants.COLUMNS);
 		// System.out.println(Arrays.deepToString(allSlicesData));
-		for (int i = 0; i < ImageConstants.ROWS-1; i++) {
-			for (int j = 0; j < ImageConstants.ROWS-1; j++) {
-				for (int k = 0; k < totalSlices-1; k++) {
-					grid.verticesPosition[0].x = i;
-					grid.verticesPosition[0].y = j;
-					grid.verticesPosition[0].z = k;
-					grid.verticesPointValue[0] = allSlicesData[i][j][k];
-					grid.verticesPosition[1].x = (i + 1);
-					grid.verticesPosition[1].y = j;
-					grid.verticesPosition[1].z = k;
-					grid.verticesPointValue[1] = allSlicesData[i+1][j][k];
-					grid.verticesPosition[2].x = (i + 1);
-					grid.verticesPosition[2].y = (j + 1);
-					grid.verticesPosition[2].z = k;
-					grid.verticesPointValue[2] = allSlicesData[i+1][j+1][k];
-					grid.verticesPosition[3].x = i;
-					grid.verticesPosition[3].y = (j + 1);
-					grid.verticesPosition[3].z = k;
-					grid.verticesPointValue[3] = allSlicesData[i][j+1][k];
-					grid.verticesPosition[4].x = i;
-					grid.verticesPosition[4].y = j;
-					grid.verticesPosition[4].z = (k + 1);
-					grid.verticesPointValue[4] = allSlicesData[i][j][k+1];
-					grid.verticesPosition[5].x = (i + 1);
-					grid.verticesPosition[5].y = j;
-					grid.verticesPosition[5].z = (k + 1);
-					grid.verticesPointValue[5] = allSlicesData[i+1][j][k + 1];
-					grid.verticesPosition[6].x = (i + 1);
-					grid.verticesPosition[6].y = (j + 1);
-					grid.verticesPosition[6].z = (k + 1);
-					grid.verticesPointValue[6] = allSlicesData[i+1][j + 1][k + 1];
-					grid.verticesPosition[7].x = i;
-					grid.verticesPosition[7].y = (j + 1);
-					grid.verticesPosition[7].z = (k + 1);
-					grid.verticesPointValue[7] = allSlicesData[i][j + 1][k + 1];
+		for (int x = 0; x < ImageConstants.ROWS -1; x++) {
+			for (int y = 0; y < ImageConstants.ROWS -1; y++) {
+				for (int z = 0; z < totalSlices-1; z++) {
+					grid.verticesPosition[0].x = x;
+					grid.verticesPosition[0].y = y*numPointsInXDirection;
+					grid.verticesPosition[0].z = z*numPointsInSlice;
+					grid.verticesPointValue[0] = allSlicesData[x][y][z];
+					
+					grid.verticesPosition[1].x = x;
+					grid.verticesPosition[1].y = (y+1)*numPointsInXDirection;
+					grid.verticesPosition[1].z = z*numPointsInSlice;
+					grid.verticesPointValue[1] = allSlicesData[x][(y+1)][z];
+					
+					grid.verticesPosition[2].x = x+1;
+					grid.verticesPosition[2].y = (y+1)*numPointsInXDirection;
+					grid.verticesPosition[2].z = z*numPointsInSlice;
+					grid.verticesPointValue[2] = allSlicesData[x+1][(y+1)][z];
+					
+					grid.verticesPosition[3].x = x+1;
+					grid.verticesPosition[3].y = y*numPointsInXDirection;
+					grid.verticesPosition[3].z = z*numPointsInSlice;
+					grid.verticesPointValue[3] = allSlicesData[x+1][y][z];
+					
+					grid.verticesPosition[4].x = x;
+					grid.verticesPosition[4].y = y*numPointsInXDirection;
+					grid.verticesPosition[4].z = (z+1)*numPointsInSlice;
+					grid.verticesPointValue[4] = allSlicesData[x][y][(z+1)];
+					
+					grid.verticesPosition[5].x = x;
+					grid.verticesPosition[5].y = (y+1)*numPointsInXDirection;
+					grid.verticesPosition[5].z = (z+1)*numPointsInSlice;
+					grid.verticesPointValue[5] = allSlicesData[x][(y+1)][(z+1)];
+					
+					grid.verticesPosition[6].x = x+1;
+					grid.verticesPosition[6].y = (y+1)*numPointsInXDirection;
+					grid.verticesPosition[6].z = (z+1)*numPointsInSlice;
+					grid.verticesPointValue[6] = allSlicesData[x+1][(y+1)][(z+1)];
+					
+					grid.verticesPosition[7].x = x+1;
+					grid.verticesPosition[7].y = y*numPointsInXDirection;
+					grid.verticesPosition[7].z = (z+1)*numPointsInSlice;
+					grid.verticesPointValue[7] = allSlicesData[x+1][y][(z+1)];
 					int numTriangleInPoly = Polygonise(grid);
 /*					for (int l = 0; l < triangles.length; l++) {
 						System.out.println("x:" + triangles[l].points[0].x + " y: " + triangles[l].points[0].y + " z: " + triangles[l].points[0].z);
@@ -122,7 +131,7 @@ public class MCPolygons {
 		if (grid.verticesPointValue[7] < isolevel) {
 			cubeindex |= 128;
 		}
-		System.out.println("cubeindex::::::" + cubeindex);
+		//System.out.println("cubeindex::::::" + cubeindex);
 		try {
 			fileWriter.write("v " + grid.verticesPointValue[0]
 					+ "" + grid.verticesPointValue[1]

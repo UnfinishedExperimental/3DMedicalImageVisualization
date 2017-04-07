@@ -1,0 +1,17 @@
+//System.out.println("cubeindex::::::" + cubeindex);
+		try {
+			fileWriter.write("v " + grid.verticesPointValue[0]
+					+ "" + grid.verticesPointValue[1]
+							+ "" + grid.verticesPointValue[2]
+									+ "" + grid.verticesPointValue[3]
+											+ "" + grid.verticesPointValue[4]
+													+ "" + grid.verticesPointValue[5]
+															+ "" + grid.verticesPointValue[6]
+																	+ "" + grid.verticesPointValue[7]
+					
+					);
+			fileWriter.write("\n");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}

@@ -57,6 +57,7 @@ public class ImageProcessUtil {
 				sample = (((sample - min) * 255) / (max - min)) + 0;
 				// Save value in the 3D array
 				if(!changeEvent) {
+					// System.out.println("Sample:" +  sample);
 					gridSlicesData[x][y][sliceNumber] = sample;
 				}
 				if (sample < ImageConstants.THRESHOLD) {
@@ -64,9 +65,7 @@ public class ImageProcessUtil {
 				} else {
 					sample = ImageConstants.WHITE;
 				}
-				// System.out.println("Sample x: " + x + "Sample y: " +y +
-				// "value: " + sample);
-				image.setRGB(x, y, 0xff000000 | (sample << 16) | (sample << 8) | sample);
+				 image.setRGB(x, y, 0xff000000 | (sample << 16) | (sample << 8) | sample);
 			}
 		}
 /*		System.out.println("-----11--------" + ones);
