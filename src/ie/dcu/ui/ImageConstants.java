@@ -14,6 +14,9 @@ public class ImageConstants {
 	public static final int THRESHOLD = 127;
 	public static final int BLACK = 0;
 	public static final int WHITE = 255;
+	
+	public static final String FLOODFILL_IP_DIR = "C:\\Users\\Gaurav\\workspace\\Visualisation\\bunnydataImageBeforeFloodFill\\";
+	public static final String FLOODFILL_OUTPUT_DIR = "C:\\Users\\Gaurav\\workspace\\Visualisation\\bunnydataImageAFTERFloodFill\\";
 /*	// Marching cube Edge Lookup Table
 	public static final int EDGE_TBL[] = { // 256
 			0x0, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09,
