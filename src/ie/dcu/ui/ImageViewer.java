@@ -97,7 +97,7 @@ public class ImageViewer extends JFrame {
 		animButton.setFocusable(false);
 		animButton.setBackground(new Color(200,240,200));
 		
-		mcButton = new JButton("Start Marching Cube Processing.");
+		mcButton = new JButton("Open .obj file");
 		mcButton.setEnabled(false);
 		mcButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -140,6 +140,7 @@ public class ImageViewer extends JFrame {
 	}
 	
 	public void openImageExplorerActionPerformed(ActionEvent evt) {
+		String currentDir = System.getProperty("user.dir");
 		// create file chooser to select medical images
 		JFileChooser chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(true);
@@ -158,6 +159,12 @@ public class ImageViewer extends JFrame {
 			imageProcess.imageFileProcess(false, 0, fileSelections[0].toString());
 			long end = System.currentTimeMillis();
 			System.out.println("Time taken : " + (end - start));
+			int dialogButton = JOptionPane.YES_NO_OPTION;
+			int dialogResult = JOptionPane.showConfirmDialog(this, "Would you like to create the obj file ? (This will take a while)", "Generate Obj", dialogButton);
+			if(dialogResult == 0) {
+				MCPolygons marchingCube= new MCPolygons();
+				marchingCube.generateFloodFilledData(fileSelections, currentDir);
+			} 
 /*			 System.out.println(Arrays.deepToString(ImageProcessUtil.gridSlicesData));
 			for (int a = 0; a < 512; a++) {
 				for (int b = 0; b < 512; b++) {
@@ -166,14 +173,14 @@ public class ImageViewer extends JFrame {
 					}
 				}
 			}*/
-/*			MCPolygons mc = new MCPolygons();
+/*			
 			mc.initiateMCProcess(imageProcess.gridSlicesData, fileSelections.length);*/
 			// JOptionPane.showMessageDialog(null, "Data is written in the array");
 		}
 		animButton.setEnabled(true);
 		mcButton.setEnabled(true);
 	}
-	
+
 	public void scaleAndSetImage(ImageIcon imageIcon) {
 		Image image = imageIcon.getImage(); // transform it
 		if (image.getWidth(null) > 1200 && image.getHeight(null) > 600) {

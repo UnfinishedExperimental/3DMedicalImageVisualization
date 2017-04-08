@@ -5,10 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
+import ie.dcu.process.ImageProcessUtil;
 import ie.dcu.ui.ImageConstants;
+
 
 public class MCPolygons {
 	// obj data
@@ -21,6 +24,38 @@ public class MCPolygons {
 	File newFile;
     FileWriter fileWriter;
     
+    public void generateFloodFilledData(File[] fileSelections, String currentDir) {
+		File folder = new File(currentDir + "\\" + ImageConstants.FF_DATA_FOLDER);
+		if(folder.exists()) {
+			// Process the images and create an obj file
+			processDataForObjFile();
+		} else {
+			// Create a folder and create images
+			folder.mkdir();
+			createImagesUsingFloodFill(fileSelections, currentDir);
+			// Process the images and create an obj file
+			processDataForObjFile();
+		}
+		
+	}
+    
+	private void createImagesUsingFloodFill(File[] fileSelections, String currentDir) {
+		Arrays.sort(fileSelections, new Comparator<File>() {
+	        public int compare(File f1, File f2) {
+				return Integer.parseInt(f1.getName())-Integer.parseInt(f2.getName());
+	        }
+		});
+		ImageProcessUtil imageProcess = new ImageProcessUtil();
+		for (int i = 0; i < fileSelections.length; i++) {
+			imageProcess.imageFilesFetchDataFF(i, fileSelections[i], currentDir);
+		}
+		
+	}
+
+	private void processDataForObjFile() {
+		System.out.println("The files will be processed and obj will be created on the same folder.");
+	}
+
 	public void initiateMCProcess(int[][][] allSlicesData, int totalSlices) {
 		initResolution();
 		int numPointsInXDirection = ImageConstants.ROWS;
