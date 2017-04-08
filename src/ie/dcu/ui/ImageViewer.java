@@ -147,7 +147,6 @@ public class ImageViewer extends JFrame {
 			// get selected image files
 			fileSelections = chooser.getSelectedFiles();
 			ImageConstants.SLIDE_MAX = fileSelections.length;
-			sliceDataSaved = new ArrayList[fileSelections.length];
 			Arrays.sort(fileSelections, new Comparator<File>() {
 		        public int compare(File f1, File f2) {
 					return Integer.parseInt(f1.getName())-Integer.parseInt(f2.getName());
@@ -156,9 +155,7 @@ public class ImageViewer extends JFrame {
 			imageSlider.setMaximum(ImageConstants.SLIDE_MAX - 1);
 			ImageProcessUtil.gridSlicesData = new int[ImageConstants.DIMENTION][ImageConstants.DIMENTION][fileSelections.length];
 			long start = System.currentTimeMillis();
-			for (int i = 0; i < fileSelections.length; i++) {
-				imageProcess.imageFileProcess(false, i, fileSelections[i].toString());
-			}
+			imageProcess.imageFileProcess(false, 0, fileSelections[0].toString());
 			long end = System.currentTimeMillis();
 			System.out.println("Time taken : " + (end - start));
 /*			 System.out.println(Arrays.deepToString(ImageProcessUtil.gridSlicesData));
@@ -169,8 +166,8 @@ public class ImageViewer extends JFrame {
 					}
 				}
 			}*/
-			MCPolygons mc = new MCPolygons();
-			mc.initiateMCProcess(imageProcess.gridSlicesData, fileSelections.length);
+/*			MCPolygons mc = new MCPolygons();
+			mc.initiateMCProcess(imageProcess.gridSlicesData, fileSelections.length);*/
 			// JOptionPane.showMessageDialog(null, "Data is written in the array");
 		}
 		animButton.setEnabled(true);

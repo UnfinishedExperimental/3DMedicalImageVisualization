@@ -1,5 +1,7 @@
 package ie.dcu.process;
 
+import java.awt.Color;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -74,6 +76,10 @@ public class ImageProcessUtil {
 		zeros=0;*/
 		sampleIndex = 0;
 		pixelData = null;
+		new FloodFill().floodFill(image, new Point(0, 0), Color.WHITE, Color.BLACK);
+		new FloodFill().floodFill(image, new Point(0, 500), Color.WHITE, Color.BLACK);
+		new FloodFill().floodFill(image, new Point(500, 0), Color.WHITE, Color.BLACK);
+		new FloodFill().floodFill(image, new Point(500, 500), Color.WHITE, Color.BLACK);
 		ImageIcon imageIcon = new ImageIcon(image); // load the image to a
 													// imageIcon
 		return imageIcon;
