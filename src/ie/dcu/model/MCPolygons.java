@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -133,9 +134,14 @@ public class MCPolygons {
 					grid.verticesPosition[7].z = (z+1)*numPointsInSlice; 
 					grid.verticesPointValue[7] = gridSlicesData[x+1][y][z+1];
 					int numTriangleInPoly = Polygonise(grid);
+					for (int index = 0; index < numTriangleInPoly; index++) {
+						final Triangle3D t = new Triangle3D(triangles[index]);
+						trilist.add(t);
+					}
 				}
 			}
 		}
+		writeObjFile();
 	}
 
 	public void initiateMCProcess(String currentFileName, int indexFile, int totalFiles) {
@@ -209,14 +215,12 @@ public class MCPolygons {
 		if (grid.verticesPointValue[7] < isolevel) {
 			cubeindex |= 128;
 		}
-		// System.out.println("cubeindex::::::" + cubeindex);
-		/* Cube is entirely in/out of the surface */
+		// Cube is entirely in/out of the surface 
 		if (MCLookUpTables.edgeTable[cubeindex] == 0) {
-			return (0);
+			return 0;
 		}
 
-		/* Find the verticesPosition where the surface intersects the cube */
-		// int temp = edgeTable[cubeindex] & 1;
+		// Find the verticesPosition where the surface intersects the cube 
 		if ((MCLookUpTables.edgeTable[cubeindex] & 1) != 0) {
 			vertlist[0] = VertexInterp(isolevel, grid.verticesPosition[0], grid.verticesPosition[1],
 					grid.verticesPointValue[0], grid.verticesPointValue[1]);
@@ -265,31 +269,35 @@ public class MCPolygons {
 			vertlist[11] = VertexInterp(isolevel, grid.verticesPosition[3], grid.verticesPosition[7],
 					grid.verticesPointValue[3], grid.verticesPointValue[7]);
 		}
-		/* Create the triangle */
+		// Create the triangle 
 		ntriang = 0;
 		for (i = 0; MCLookUpTables.triTable[cubeindex][i] != -1; i += 3) {
 			triangles[ntriang].points[0] = vertlist[MCLookUpTables.triTable[cubeindex][i]];
 			triangles[ntriang].points[1] = vertlist[MCLookUpTables.triTable[cubeindex][i + 1]];
 			triangles[ntriang].points[2] = vertlist[MCLookUpTables.triTable[cubeindex][i + 2]];
-			// Write vertices to the obj file
-
-			try {
-				fileWriter.write("f " + triangles[ntriang].points[0].x + " " + triangles[ntriang].points[0].y + " "
-						+ triangles[ntriang].points[0].z);
-				fileWriter.write("\n");
-				fileWriter.write("f " + triangles[ntriang].points[1].x + " " + triangles[ntriang].points[1].y + " "
-						+ triangles[ntriang].points[1].z);
-				fileWriter.write("\n");
-				fileWriter.write("f " + triangles[ntriang].points[2].x + " " + triangles[ntriang].points[2].y + " "
-						+ triangles[ntriang].points[2].z);
-				fileWriter.write("\n");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 			ntriang++;
 		}
+		return ntriang;
+	}
 
-		return (ntriang);
+	private void writeObjFile() {
+		// Write vertices to the obj file
+		try {
+			for (Iterator iterator = trilist.iterator(); iterator.hasNext();) {
+				Triangle3D triangle3d = (Triangle3D) iterator.next();
+				fileWriter.write("v " + triangle3d.points[0].x + " " + triangle3d.points[0].y + " "
+						+ triangle3d.points[0].z);
+				fileWriter.write("\n");
+				fileWriter.write("v " + triangle3d.points[1].x + " " + triangle3d.points[1].y + " "
+						+ triangle3d.points[1].z);
+				fileWriter.write("\n");
+				fileWriter.write("v " + triangle3d.points[2].x + " " + triangle3d.points[2].y + " "
+						+ triangle3d.points[2].z);
+				fileWriter.write("\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/*
