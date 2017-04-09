@@ -20,14 +20,16 @@ import ie.dcu.ui.ImageConstants;
 public class MCPolygons {
 	// obj data
 	public GridCell grid;
-	public Triangle3D[] triangles;
-	public List<Triangle3D> trilist = new ArrayList<Triangle3D>();
+	public List<Triangle3D> triangles;
+	public List<Triangle3D> trilist;
 	public int normalTriangle;
 	public boolean invertnormals = true;
 	public boolean closesides = true;
 	File newFile;
 	FileWriter fileWriter;
 	File folderData = null;
+	int number = 0;
+	int numberTwo = 0;
 	// 3D data for images.
 	public static int[][][] gridSlicesData;
 
@@ -133,15 +135,18 @@ public class MCPolygons {
 					grid.verticesPosition[7].y = y*numPointsInXDirection; 
 					grid.verticesPosition[7].z = (z+1)*numPointsInSlice; 
 					grid.verticesPointValue[7] = gridSlicesData[x+1][y][z+1];
-					int numTriangleInPoly = Polygonise(grid);
-					for (int index = 0; index < numTriangleInPoly; index++) {
-						final Triangle3D t = new Triangle3D(triangles[index]);
-						trilist.add(t);
+					Polygonise(grid);
+					for(Triangle3D  triangle: triangles) {
+						trilist.add(triangle);
 					}
+					triangles.clear();
 				}
 			}
 		}
-		writeObjFile();
+		System.out.println("Number of triangle with 0/255:: " + number);
+		System.out.println("Number of triangle with OTHER:: " + numberTwo);
+		System.out.println("Number of triangles:: " + trilist.size());
+		//writeObjFile();
 	}
 
 	public void initiateMCProcess(String currentFileName, int indexFile, int totalFiles) {
@@ -215,11 +220,15 @@ public class MCPolygons {
 		if (grid.verticesPointValue[7] < isolevel) {
 			cubeindex |= 128;
 		}
+		
 		// Cube is entirely in/out of the surface 
 		if (MCLookUpTables.edgeTable[cubeindex] == 0) {
+			number++;
 			return 0;
+		} else {
+			numberTwo++;
 		}
-
+		
 		// Find the verticesPosition where the surface intersects the cube 
 		if ((MCLookUpTables.edgeTable[cubeindex] & 1) != 0) {
 			vertlist[0] = VertexInterp(isolevel, grid.verticesPosition[0], grid.verticesPosition[1],
@@ -272,10 +281,8 @@ public class MCPolygons {
 		// Create the triangle 
 		ntriang = 0;
 		for (i = 0; MCLookUpTables.triTable[cubeindex][i] != -1; i += 3) {
-			triangles[ntriang].points[0] = vertlist[MCLookUpTables.triTable[cubeindex][i]];
-			triangles[ntriang].points[1] = vertlist[MCLookUpTables.triTable[cubeindex][i + 1]];
-			triangles[ntriang].points[2] = vertlist[MCLookUpTables.triTable[cubeindex][i + 2]];
-			ntriang++;
+			Triangle3D trian = new Triangle3D(vertlist[MCLookUpTables.triTable[cubeindex][i]], vertlist[MCLookUpTables.triTable[cubeindex][i+1]], vertlist[MCLookUpTables.triTable[cubeindex][i+2]]);
+			triangles.add(trian);
 		}
 		return ntriang;
 	}
@@ -317,10 +324,8 @@ public class MCPolygons {
 	}
 
 	private void initResolution() {
-		triangles = new Triangle3D[5];
-		for (int i = 0; i < triangles.length; i++) {
-			triangles[i] = new Triangle3D();
-		}
+		triangles = new ArrayList<Triangle3D>();
+		trilist = new ArrayList<Triangle3D>();
 		grid = new GridCell();
 		trilist.clear();
 		try {

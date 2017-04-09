@@ -19,6 +19,12 @@ public class Triangle3D {
 			points[i] = new Point3D(trian.points[i]);
 		}
 	}
+	
+	public Triangle3D(Point3D x, Point3D y, Point3D z) {
+		points[0] = x;
+		points[1] = y;
+		points[2] = z;
+	}
 	public void calcnormal(boolean invertnormals) {
 		Point3D nv = new Point3D();
 		Point3D v1 = new Point3D((points[1].x - points[0].x), (points[1].y - points[0].y),
