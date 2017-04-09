@@ -154,11 +154,7 @@ public class ImageViewer extends JFrame {
 		        }
 			});
 			imageSlider.setMaximum(ImageConstants.SLIDE_MAX - 1);
-			ImageProcessUtil.gridSlicesData = new int[ImageConstants.DIMENTION][ImageConstants.DIMENTION][fileSelections.length];
-			long start = System.currentTimeMillis();
-			imageProcess.imageFileProcess(false, 0, fileSelections[0].toString());
-			long end = System.currentTimeMillis();
-			System.out.println("Time taken : " + (end - start));
+			imageProcess.imageFileProcess(true, 0, fileSelections[0].toString());
 			int dialogButton = JOptionPane.YES_NO_OPTION;
 			int dialogResult = JOptionPane.showConfirmDialog(this, "Would you like to create the obj file ? (This will take a while)", "Generate Obj", dialogButton);
 			if(dialogResult == 0) {

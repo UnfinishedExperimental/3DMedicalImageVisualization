@@ -16,8 +16,6 @@ import ie.dcu.ui.ImageConstants;
 
 public class ImageProcessUtil {
 	private int[] pixelData;
-	public static int[][][] gridSlicesData;
-
 	private int sampleIndex = 0;
 	int min = 0;
 	int max = 0;
@@ -57,12 +55,7 @@ public class ImageProcessUtil {
 			for (int x = 0; x < ImageConstants.COLUMNS; x++) {
 				int sample = pixelData[sampleIndex++] & 0x0FFF;
 				sample = (((sample - min) * 255) / (max - min)) + 0;
-				// Save value in the 3D array
-				if (!changeEvent) {
-					// System.out.println("Sample:" + sample);
-					gridSlicesData[x][y][sliceNumber] = sample;
-				}
-				if (sample < ImageConstants.THRESHOLD) {
+				if(sample<ImageConstants.THRESHOLD) {
 					sample = ImageConstants.BLACK;
 				} else {
 					sample = ImageConstants.WHITE;
@@ -119,7 +112,7 @@ public class ImageProcessUtil {
 			for (int x = 0; x < ImageConstants.COLUMNS; x++) {
 				int sample = pixelData[sampleIndexLocal++] & 0x0FFF;
 				sample = (((sample - minLocal) * 255) / (maxLocal - minLocal)) + 0;
-				if (sample < ImageConstants.THRESHOLD) {
+				if(sample<ImageConstants.THRESHOLD) {
 					sample = ImageConstants.BLACK;
 				} else {
 					sample = ImageConstants.WHITE;
@@ -134,7 +127,7 @@ public class ImageProcessUtil {
 		new FloodFill().floodFill(image, new Point(500, 0), Color.WHITE, Color.BLACK);
 		new FloodFill().floodFill(image, new Point(500, 500), Color.WHITE, Color.BLACK);
 		try {
-			ImageIO.write(image, "png", new File(currentDir + "\\" + ImageConstants.FF_DATA_FOLDER + "\\" +  sliceNumber + ".png"));
+			ImageIO.write(image, "png", new File(currentDir + "\\" + ImageConstants.FF_DATA_FOLDER + "\\" +  (sliceNumber+1) + ".png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	

@@ -1,5 +1,6 @@
 package ie.dcu.model;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -9,9 +10,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
+
 import ie.dcu.process.ImageProcessUtil;
 import ie.dcu.ui.ImageConstants;
-
 
 public class MCPolygons {
 	// obj data
@@ -22,126 +25,165 @@ public class MCPolygons {
 	public boolean invertnormals = true;
 	public boolean closesides = true;
 	File newFile;
-    FileWriter fileWriter;
-    
-    public void generateFloodFilledData(File[] fileSelections, String currentDir) {
-		File folder = new File(currentDir + "\\" + ImageConstants.FF_DATA_FOLDER);
-		if(folder.exists()) {
+	FileWriter fileWriter;
+	File folderData = null;
+	// 3D data for images.
+	public static int[][][] gridSlicesData;
+
+	public void generateFloodFilledData(File[] fileSelections, String currentDir) {
+		folderData = new File(currentDir + "\\" + ImageConstants.FF_DATA_FOLDER);
+		if (folderData.exists()) {
 			// Process the images and create an obj file
-			processDataForObjFile();
+			processDataForObjFile(fileSelections, currentDir);
 		} else {
 			// Create a folder and create images
-			folder.mkdir();
+			folderData.mkdir();
 			createImagesUsingFloodFill(fileSelections, currentDir);
 			// Process the images and create an obj file
-			processDataForObjFile();
+			processDataForObjFile(fileSelections, currentDir);
 		}
-		
+
 	}
-    
+
 	private void createImagesUsingFloodFill(File[] fileSelections, String currentDir) {
 		Arrays.sort(fileSelections, new Comparator<File>() {
-	        public int compare(File f1, File f2) {
-				return Integer.parseInt(f1.getName())-Integer.parseInt(f2.getName());
-	        }
+			public int compare(File f1, File f2) {
+				return Integer.parseInt(f1.getName()) - Integer.parseInt(f2.getName());
+			}
 		});
 		ImageProcessUtil imageProcess = new ImageProcessUtil();
 		for (int i = 0; i < fileSelections.length; i++) {
 			imageProcess.imageFilesFetchDataFF(i, fileSelections[i], currentDir);
 		}
-		
+
 	}
 
-	private void processDataForObjFile() {
-		System.out.println("The files will be processed and obj will be created on the same folder.");
+	private void processDataForObjFile(File[] fileSelections, String currentDir) {
+		Arrays.sort(fileSelections, new Comparator<File>() {
+			public int compare(File f1, File f2) {
+				return Integer.parseInt(f1.getName()) - Integer.parseInt(f2.getName());
+			}
+		});
+		gridSlicesData = new int[ImageConstants.ROWS][ImageConstants.COLUMNS][fileSelections.length];
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < fileSelections.length; i++) {
+			initiateMCProcess(fileSelections[i].getName(), i, fileSelections.length);
+		}
+		long end = System.currentTimeMillis();
+		// System.out.println("The files will be processed and obj will be created on the same folder.");
+		// System.out.println(Arrays.deepToString(gridSlicesData));
+		System.out.println("Total Time taken to store image data" + (end-start));
 	}
 
-	public void initiateMCProcess(int[][][] allSlicesData, int totalSlices) {
-		initResolution();
-		int numPointsInXDirection = ImageConstants.ROWS;
-		int numPointsInSlice = numPointsInXDirection*(ImageConstants.COLUMNS);
-		// System.out.println(Arrays.deepToString(allSlicesData));
-		for (int x = 0; x < ImageConstants.ROWS -1; x++) {
-			for (int y = 0; y < ImageConstants.ROWS -1; y++) {
-				for (int z = 0; z < totalSlices-1; z++) {
-					grid.verticesPosition[0].x = x;
-					grid.verticesPosition[0].y = y*numPointsInXDirection;
-					grid.verticesPosition[0].z = z*numPointsInSlice;
-					grid.verticesPointValue[0] = allSlicesData[x][y][z];
-					
-					grid.verticesPosition[1].x = x;
-					grid.verticesPosition[1].y = (y+1)*numPointsInXDirection;
-					grid.verticesPosition[1].z = z*numPointsInSlice;
-					grid.verticesPointValue[1] = allSlicesData[x][(y+1)][z];
-					
-					grid.verticesPosition[2].x = x+1;
-					grid.verticesPosition[2].y = (y+1)*numPointsInXDirection;
-					grid.verticesPosition[2].z = z*numPointsInSlice;
-					grid.verticesPointValue[2] = allSlicesData[x+1][(y+1)][z];
-					
-					grid.verticesPosition[3].x = x+1;
-					grid.verticesPosition[3].y = y*numPointsInXDirection;
-					grid.verticesPosition[3].z = z*numPointsInSlice;
-					grid.verticesPointValue[3] = allSlicesData[x+1][y][z];
-					
-					grid.verticesPosition[4].x = x;
-					grid.verticesPosition[4].y = y*numPointsInXDirection;
-					grid.verticesPosition[4].z = (z+1)*numPointsInSlice;
-					grid.verticesPointValue[4] = allSlicesData[x][y][(z+1)];
-					
-					grid.verticesPosition[5].x = x;
-					grid.verticesPosition[5].y = (y+1)*numPointsInXDirection;
-					grid.verticesPosition[5].z = (z+1)*numPointsInSlice;
-					grid.verticesPointValue[5] = allSlicesData[x][(y+1)][(z+1)];
-					
-					grid.verticesPosition[6].x = x+1;
-					grid.verticesPosition[6].y = (y+1)*numPointsInXDirection;
-					grid.verticesPosition[6].z = (z+1)*numPointsInSlice;
-					grid.verticesPointValue[6] = allSlicesData[x+1][(y+1)][(z+1)];
-					
-					grid.verticesPosition[7].x = x+1;
-					grid.verticesPosition[7].y = y*numPointsInXDirection;
-					grid.verticesPosition[7].z = (z+1)*numPointsInSlice;
-					grid.verticesPointValue[7] = allSlicesData[x+1][y][(z+1)];
-					int numTriangleInPoly = Polygonise(grid);
-/*					for (int l = 0; l < triangles.length; l++) {
-						System.out.println("x:" + triangles[l].points[0].x + " y: " + triangles[l].points[0].y + " z: " + triangles[l].points[0].z);
-						System.out.println("x:" + triangles[l].points[1].x + " y: " + triangles[l].points[1].y + " z: " + triangles[l].points[1].z);
-						System.out.println("x:" + triangles[l].points[2].x + " y: " + triangles[l].points[2].y + " z: " + triangles[l].points[2].z);
-					}*/
-					// calc tri norms
-					//if(numTriangleInPoly>0)
-					//System.out.println("i: " + i + "j: " +j+ " k: " +k + " and ----TRIANGLES---" + numTriangleInPoly);
-/*	*/				/*for (int a0 = 0; a0 < n; a0++) {
-						triangles[a0].calcnormal(invertnormals);
-					}*/
-					for (int l = 0; l < numTriangleInPoly; l++) {
-						final Triangle3D t = new Triangle3D(triangles[l]);
-						trilist.add(t);
+	public void initiateMCProcess(String currentFileName, int indexFile, int totalFiles) {
+		int min = 0;
+		int max = 0;
+		try {
+			BufferedImage image = ImageIO.read(new File(folderData + "\\" + currentFileName + ".png"));
+			for (int i = 0; i < ImageConstants.ROWS; i++) {
+				for (int j = 0; j < ImageConstants.COLUMNS; j++) {
+					int sample = image.getRGB(i, j) & 0x0FFF;
+					if (sample < min) {
+						min = sample;
 					}
-					// normalTriangle += n;
+					if (sample > max) {
+						max = sample;
+					}
 				}
 			}
-		}
-		/*// write faces to obj file
-		try {
-			for (Iterator iterator = trilist.iterator(); iterator.hasNext();) {
-				Triangle3D triangle3d = (Triangle3D) iterator.next();
-				fileWriter.write("f ");
-				fileWriter.write("\n");
+			for (int i = 0; i < ImageConstants.ROWS; i++) {
+				for (int j = 0; j < ImageConstants.COLUMNS; j++) {
+					int sample = image.getRGB(i, j) & 0x0FFF;
+					sample = (((sample - min) * 255) / (max - min)) + 0;
+					gridSlicesData[i][j][indexFile] = sample;
+				}
 			}
+			// System.out.println(image.get);
+			/*
+			 * for (int x = 0; x < ImageConstants.ROWS; x++) { for (int y = 0; y
+			 * < ImageConstants.ROWS; y++) { for (int z = 0; z < totalFiles;
+			 * z++) {
+			 * 
+			 * } } }
+			 */
 		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, currentFileName);
+			
 			e.printStackTrace();
-		}*/
-	}
+		}
+		/*
+		 * BufferedImage image = ImageIO.read(new File(folderData +
+		 * "\\" +  currentFile.getName() + ".png")); initResolution(); int
+		 * numPointsInXDirection = ImageConstants.ROWS; // 512 int
+		 * numPointsInSlice = numPointsInXDirection*(ImageConstants.COLUMNS);
+		 * //512 // System.out.println(Arrays.deepToString(allSlicesData)); for
+		 * (int x = 0; x < ImageConstants.ROWS; x++) { for (int y = 0; y <
+		 * ImageConstants.ROWS; y++) { for (int z = 0; z < totalFiles; z++) {
+		 * grid.verticesPosition[0].x = x; grid.verticesPosition[0].y =
+		 * y*numPointsInXDirection; grid.verticesPosition[0].z =
+		 * z*numPointsInSlice; grid.verticesPointValue[0] =
+		 * allSlicesData[x][y][z];
+		 * 
+		 * grid.verticesPosition[1].x = x; grid.verticesPosition[1].y =
+		 * (y+1)*numPointsInXDirection; grid.verticesPosition[1].z =
+		 * z*numPointsInSlice; grid.verticesPointValue[1] =
+		 * allSlicesData[x][(y+1)][z];
+		 * 
+		 * grid.verticesPosition[2].x = x+1; grid.verticesPosition[2].y =
+		 * (y+1)*numPointsInXDirection; grid.verticesPosition[2].z =
+		 * z*numPointsInSlice; grid.verticesPointValue[2] =
+		 * allSlicesData[x+1][(y+1)][z];
+		 * 
+		 * grid.verticesPosition[3].x = x+1; grid.verticesPosition[3].y =
+		 * y*numPointsInXDirection; grid.verticesPosition[3].z =
+		 * z*numPointsInSlice; grid.verticesPointValue[3] =
+		 * allSlicesData[x+1][y][z];
+		 * 
+		 * grid.verticesPosition[4].x = x; grid.verticesPosition[4].y =
+		 * y*numPointsInXDirection; grid.verticesPosition[4].z =
+		 * (z+1)*numPointsInSlice; grid.verticesPointValue[4] =
+		 * allSlicesData[x][y][(z+1)];
+		 * 
+		 * grid.verticesPosition[5].x = x; grid.verticesPosition[5].y =
+		 * (y+1)*numPointsInXDirection; grid.verticesPosition[5].z =
+		 * (z+1)*numPointsInSlice; grid.verticesPointValue[5] =
+		 * allSlicesData[x][(y+1)][(z+1)];
+		 * 
+		 * grid.verticesPosition[6].x = x+1; grid.verticesPosition[6].y =
+		 * (y+1)*numPointsInXDirection; grid.verticesPosition[6].z =
+		 * (z+1)*numPointsInSlice; grid.verticesPointValue[6] =
+		 * allSlicesData[x+1][(y+1)][(z+1)];
+		 * 
+		 * grid.verticesPosition[7].x = x+1; grid.verticesPosition[7].y =
+		 * y*numPointsInXDirection; grid.verticesPosition[7].z =
+		 * (z+1)*numPointsInSlice; grid.verticesPointValue[7] =
+		 * allSlicesData[x+1][y][(z+1)]; int numTriangleInPoly =
+		 * Polygonise(grid); for (int l = 0; l < triangles.length; l++) {
+		 * System.out.println("x:" + triangles[l].points[0].x + " y: " +
+		 * triangles[l].points[0].y + " z: " + triangles[l].points[0].z);
+		 * System.out.println("x:" + triangles[l].points[1].x + " y: " +
+		 * triangles[l].points[1].y + " z: " + triangles[l].points[1].z);
+		 * System.out.println("x:" + triangles[l].points[2].x + " y: " +
+		 * triangles[l].points[2].y + " z: " + triangles[l].points[2].z); } //
+		 * calc tri norms //if(numTriangleInPoly>0) //System.out.println("i: " +
+		 * i + "j: " +j+ " k: " +k + " and ----TRIANGLES---" +
+		 * numTriangleInPoly); for (int a0 = 0; a0 < n; a0++) {
+		 * triangles[a0].calcnormal(invertnormals); } for (int l = 0; l <
+		 * numTriangleInPoly; l++) { final Triangle3D t = new
+		 * Triangle3D(triangles[l]); trilist.add(t); } // normalTriangle += n; }
+		 * } } // write faces to obj file try { for (Iterator iterator =
+		 * trilist.iterator(); iterator.hasNext();) { Triangle3D triangle3d =
+		 * (Triangle3D) iterator.next(); fileWriter.write("f ");
+		 * fileWriter.write("\n"); } } catch (IOException e) {
+		 * e.printStackTrace(); }
+		 */}
 
-	
 	/*
 	 * Given a grid cell and an isolevel, calculate the triangular facets
 	 * required to represent the isosurface through the cell. Return the number
 	 * of triangular facets, the array "triangles" will be loaded up with the
-	 * verticesPosition at most 5 triangular facets. 0 will be returned if the grid cell
-	 * is either totally above of totally below the isolevel.
+	 * verticesPosition at most 5 triangular facets. 0 will be returned if the
+	 * grid cell is either totally above of totally below the isolevel.
 	 */
 	private int Polygonise(GridCell grid) {
 		int i, ntriang;
@@ -149,8 +191,8 @@ public class MCPolygons {
 		final Point3D vertlist[] = new Point3D[12];
 		float isolevel = ImageConstants.ISO_VALUE;
 		/*
-		 * Determine the index into the edge table which tells us which verticesPosition
-		 * are inside of the surface
+		 * Determine the index into the edge table which tells us which
+		 * verticesPosition are inside of the surface
 		 */
 		cubeindex = 0;
 		if (grid.verticesPointValue[0] < isolevel) {
@@ -177,7 +219,7 @@ public class MCPolygons {
 		if (grid.verticesPointValue[7] < isolevel) {
 			cubeindex |= 128;
 		}
-		//System.out.println("cubeindex::::::" + cubeindex);
+		// System.out.println("cubeindex::::::" + cubeindex);
 		/* Cube is entirely in/out of the surface */
 		if (MCLookUpTables.edgeTable[cubeindex] == 0) {
 			return (0);
@@ -230,7 +272,7 @@ public class MCPolygons {
 					grid.verticesPointValue[2], grid.verticesPointValue[6]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 2048) != 0) {
-			vertlist[11] = VertexInterp(isolevel, grid.verticesPosition[3], grid.verticesPosition[7] ,
+			vertlist[11] = VertexInterp(isolevel, grid.verticesPosition[3], grid.verticesPosition[7],
 					grid.verticesPointValue[3], grid.verticesPointValue[7]);
 		}
 		/* Create the triangle */
@@ -256,16 +298,15 @@ public class MCPolygons {
 			}
 			ntriang++;
 		}
-			
+
 		return (ntriang);
 	}
-	
+
 	/*
 	 * Linearly interpolate the position where an isosurface cuts an edge
 	 * between two verticesPosition, each with their own scalar value
 	 */
-	private Point3D VertexInterp(float isolevel, Point3D p1, Point3D p2, float valp1,
-			float valp2) {
+	private Point3D VertexInterp(float isolevel, Point3D p1, Point3D p2, float valp1, float valp2) {
 		float mu;
 		final Point3D p = new Point3D();
 		p.x = p.y = p.z = 0.0f;
@@ -276,10 +317,9 @@ public class MCPolygons {
 
 		return (p);
 	}
-	
+
 	private void initResolution() {
 		triangles = new Triangle3D[5];
-		normalTriangle = 0;
 		for (int i = 0; i < triangles.length; i++) {
 			triangles[i] = new Triangle3D();
 		}
@@ -287,7 +327,7 @@ public class MCPolygons {
 		trilist.clear();
 		try {
 			newFile = new File("bunnyFile.obj");
-		    fileWriter = new FileWriter(newFile);
+			fileWriter = new FileWriter(newFile);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
