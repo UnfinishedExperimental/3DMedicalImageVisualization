@@ -69,10 +69,73 @@ public class MCPolygons {
 		for (int i = 0; i < fileSelections.length; i++) {
 			initiateMCProcess(fileSelections[i].getName(), i, fileSelections.length);
 		}
+		generateMarchingCubePolygons(fileSelections.length);
 		long end = System.currentTimeMillis();
 		// System.out.println("The files will be processed and obj will be created on the same folder.");
 		// System.out.println(Arrays.deepToString(gridSlicesData));
-		System.out.println("Total Time taken to store image data" + (end-start));
+		System.out.println("Total Time taken to store image data into temporary array : " + (end-start));
+	}
+
+	private void generateMarchingCubePolygons(int totalFiles) {
+		System.out.println("totalFiles" + totalFiles);
+		//System.out.println(gridSlicesData.length+" "+gridSlicesData[1].length+" "+gridSlicesData[0][1].length);
+		initResolution();
+		int numPointsInXDirection = ImageConstants.ROWS; // 512 int
+		int numPointsInSlice = numPointsInXDirection*(ImageConstants.COLUMNS); //512*512
+		for (int x = 0; x < ImageConstants.ROWS-1; x++) { 
+			for (int y = 0; y < ImageConstants.COLUMNS-1; y++) { 
+				for (int z = 0; z < totalFiles-1; z++) {
+					// Point 0
+					grid.verticesPosition[0].x = x; 
+					grid.verticesPosition[0].y = y*numPointsInXDirection; 
+					grid.verticesPosition[0].z = z*numPointsInSlice; 
+					grid.verticesPointValue[0] = gridSlicesData[x][y][z];
+					
+					// Point 1
+					grid.verticesPosition[1].x = x; 
+					grid.verticesPosition[1].y = (y+1)*numPointsInXDirection; 
+					grid.verticesPosition[1].z = z*numPointsInSlice; 
+					grid.verticesPointValue[1] = gridSlicesData[x][y+1][z];
+					
+					// Point 2
+					grid.verticesPosition[2].x = x+1; 
+					grid.verticesPosition[2].y = (y+1)*numPointsInXDirection; 
+					grid.verticesPosition[2].z = z*numPointsInSlice; 
+					grid.verticesPointValue[2] = gridSlicesData[x+1][y+1][z];
+					
+					// Point 3
+					grid.verticesPosition[3].x = x+1; 
+					grid.verticesPosition[3].y = y*numPointsInXDirection; 
+					grid.verticesPosition[3].z = z*numPointsInSlice; 
+					grid.verticesPointValue[3] = gridSlicesData[x+1][y][z];
+					
+					// Point 4
+					grid.verticesPosition[4].x = x; 
+					grid.verticesPosition[4].y = y*numPointsInXDirection; 
+					grid.verticesPosition[4].z = (z+1)*numPointsInSlice; 
+					grid.verticesPointValue[4] = gridSlicesData[x][y][z+1];
+					
+					// Point 5
+					grid.verticesPosition[5].x = x; 
+					grid.verticesPosition[5].y = (y+1)*numPointsInXDirection; 
+					grid.verticesPosition[5].z = (z+1)*numPointsInSlice; 
+					grid.verticesPointValue[5] = gridSlicesData[x][y+1][z+1];
+					
+					// Point 6
+					grid.verticesPosition[6].x = (x+1); 
+					grid.verticesPosition[6].y = (y+1)*numPointsInXDirection; 
+					grid.verticesPosition[6].z = (z+1)*numPointsInSlice; 
+					grid.verticesPointValue[6] = gridSlicesData[x+1][y+1][z+1];
+					
+					// Point 7
+					grid.verticesPosition[7].x = (x+1); 
+					grid.verticesPosition[7].y = y*numPointsInXDirection; 
+					grid.verticesPosition[7].z = (z+1)*numPointsInSlice; 
+					grid.verticesPointValue[7] = gridSlicesData[x+1][y][z+1];
+					int numTriangleInPoly = Polygonise(grid);
+				}
+			}
+		}
 	}
 
 	public void initiateMCProcess(String currentFileName, int indexFile, int totalFiles) {
@@ -98,85 +161,12 @@ public class MCPolygons {
 					gridSlicesData[i][j][indexFile] = sample;
 				}
 			}
-			// System.out.println(image.get);
-			/*
-			 * for (int x = 0; x < ImageConstants.ROWS; x++) { for (int y = 0; y
-			 * < ImageConstants.ROWS; y++) { for (int z = 0; z < totalFiles;
-			 * z++) {
-			 * 
-			 * } } }
-			 */
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, currentFileName);
 			
 			e.printStackTrace();
 		}
-		/*
-		 * BufferedImage image = ImageIO.read(new File(folderData +
-		 * "\\" +  currentFile.getName() + ".png")); initResolution(); int
-		 * numPointsInXDirection = ImageConstants.ROWS; // 512 int
-		 * numPointsInSlice = numPointsInXDirection*(ImageConstants.COLUMNS);
-		 * //512 // System.out.println(Arrays.deepToString(allSlicesData)); for
-		 * (int x = 0; x < ImageConstants.ROWS; x++) { for (int y = 0; y <
-		 * ImageConstants.ROWS; y++) { for (int z = 0; z < totalFiles; z++) {
-		 * grid.verticesPosition[0].x = x; grid.verticesPosition[0].y =
-		 * y*numPointsInXDirection; grid.verticesPosition[0].z =
-		 * z*numPointsInSlice; grid.verticesPointValue[0] =
-		 * allSlicesData[x][y][z];
-		 * 
-		 * grid.verticesPosition[1].x = x; grid.verticesPosition[1].y =
-		 * (y+1)*numPointsInXDirection; grid.verticesPosition[1].z =
-		 * z*numPointsInSlice; grid.verticesPointValue[1] =
-		 * allSlicesData[x][(y+1)][z];
-		 * 
-		 * grid.verticesPosition[2].x = x+1; grid.verticesPosition[2].y =
-		 * (y+1)*numPointsInXDirection; grid.verticesPosition[2].z =
-		 * z*numPointsInSlice; grid.verticesPointValue[2] =
-		 * allSlicesData[x+1][(y+1)][z];
-		 * 
-		 * grid.verticesPosition[3].x = x+1; grid.verticesPosition[3].y =
-		 * y*numPointsInXDirection; grid.verticesPosition[3].z =
-		 * z*numPointsInSlice; grid.verticesPointValue[3] =
-		 * allSlicesData[x+1][y][z];
-		 * 
-		 * grid.verticesPosition[4].x = x; grid.verticesPosition[4].y =
-		 * y*numPointsInXDirection; grid.verticesPosition[4].z =
-		 * (z+1)*numPointsInSlice; grid.verticesPointValue[4] =
-		 * allSlicesData[x][y][(z+1)];
-		 * 
-		 * grid.verticesPosition[5].x = x; grid.verticesPosition[5].y =
-		 * (y+1)*numPointsInXDirection; grid.verticesPosition[5].z =
-		 * (z+1)*numPointsInSlice; grid.verticesPointValue[5] =
-		 * allSlicesData[x][(y+1)][(z+1)];
-		 * 
-		 * grid.verticesPosition[6].x = x+1; grid.verticesPosition[6].y =
-		 * (y+1)*numPointsInXDirection; grid.verticesPosition[6].z =
-		 * (z+1)*numPointsInSlice; grid.verticesPointValue[6] =
-		 * allSlicesData[x+1][(y+1)][(z+1)];
-		 * 
-		 * grid.verticesPosition[7].x = x+1; grid.verticesPosition[7].y =
-		 * y*numPointsInXDirection; grid.verticesPosition[7].z =
-		 * (z+1)*numPointsInSlice; grid.verticesPointValue[7] =
-		 * allSlicesData[x+1][y][(z+1)]; int numTriangleInPoly =
-		 * Polygonise(grid); for (int l = 0; l < triangles.length; l++) {
-		 * System.out.println("x:" + triangles[l].points[0].x + " y: " +
-		 * triangles[l].points[0].y + " z: " + triangles[l].points[0].z);
-		 * System.out.println("x:" + triangles[l].points[1].x + " y: " +
-		 * triangles[l].points[1].y + " z: " + triangles[l].points[1].z);
-		 * System.out.println("x:" + triangles[l].points[2].x + " y: " +
-		 * triangles[l].points[2].y + " z: " + triangles[l].points[2].z); } //
-		 * calc tri norms //if(numTriangleInPoly>0) //System.out.println("i: " +
-		 * i + "j: " +j+ " k: " +k + " and ----TRIANGLES---" +
-		 * numTriangleInPoly); for (int a0 = 0; a0 < n; a0++) {
-		 * triangles[a0].calcnormal(invertnormals); } for (int l = 0; l <
-		 * numTriangleInPoly; l++) { final Triangle3D t = new
-		 * Triangle3D(triangles[l]); trilist.add(t); } // normalTriangle += n; }
-		 * } } // write faces to obj file try { for (Iterator iterator =
-		 * trilist.iterator(); iterator.hasNext();) { Triangle3D triangle3d =
-		 * (Triangle3D) iterator.next(); fileWriter.write("f ");
-		 * fileWriter.write("\n"); } } catch (IOException e) {
-		 * e.printStackTrace(); }
-		 */}
+	}
 
 	/*
 	 * Given a grid cell and an isolevel, calculate the triangular facets
