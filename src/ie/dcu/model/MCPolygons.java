@@ -68,85 +68,80 @@ public class MCPolygons {
 			}
 		});
 		gridSlicesData = new int[ImageConstants.ROWS][ImageConstants.COLUMNS][fileSelections.length];
+		initResolution();
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < fileSelections.length; i++) {
 			initiateMCProcess(fileSelections[i].getName(), i, fileSelections.length);
 		}
-		generateMarchingCubePolygons(fileSelections.length);
+		for (int z = 0; z < fileSelections.length-1; z++) {
+			generateMarchingCubePolygons(fileSelections.length, z);
+		}
+		System.out.println("Number of triangle with 0/255:: " + number);
+		System.out.println("Number of triangle with OTHER:: " + numberTwo);
+		System.out.println("Number of triangles:: " + trilist.size());	
 		long end = System.currentTimeMillis();
 		// System.out.println("The files will be processed and obj will be created on the same folder.");
 		// System.out.println(Arrays.deepToString(gridSlicesData));
 		System.out.println("Total Time taken to store image data into temporary array : " + (end-start));
 	}
 
-	private void generateMarchingCubePolygons(int totalFiles) {
-		System.out.println("totalFiles" + totalFiles);
-		//System.out.println(gridSlicesData.length+" "+gridSlicesData[1].length+" "+gridSlicesData[0][1].length);
-		initResolution();
-		int numPointsInXDirection = ImageConstants.ROWS; // 512 int
-		int numPointsInSlice = numPointsInXDirection*(ImageConstants.COLUMNS); //512*512
+	private void generateMarchingCubePolygons(int totalFiles, int z) {
 		for (int x = 0; x < ImageConstants.ROWS-1; x++) { 
-			for (int y = 0; y < ImageConstants.COLUMNS-1; y++) { 
-				for (int z = 0; z < totalFiles-1; z++) {
 					// Point 0
 					grid.verticesPosition[0].x = x; 
-					grid.verticesPosition[0].y = y*numPointsInXDirection; 
-					grid.verticesPosition[0].z = z*numPointsInSlice; 
-					grid.verticesPointValue[0] = gridSlicesData[x][y][z];
+					grid.verticesPosition[0].y = x; 
+					grid.verticesPosition[0].z = z; 
+					grid.verticesPointValue[0] = gridSlicesData[x][x][z];
 					
 					// Point 1
 					grid.verticesPosition[1].x = x; 
-					grid.verticesPosition[1].y = (y+1)*numPointsInXDirection; 
-					grid.verticesPosition[1].z = z*numPointsInSlice; 
-					grid.verticesPointValue[1] = gridSlicesData[x][y+1][z];
+					grid.verticesPosition[1].y = (x+1); 
+					grid.verticesPosition[1].z = z; 
+					grid.verticesPointValue[1] = gridSlicesData[x][x+1][z];
 					
 					// Point 2
 					grid.verticesPosition[2].x = x+1; 
-					grid.verticesPosition[2].y = (y+1)*numPointsInXDirection; 
-					grid.verticesPosition[2].z = z*numPointsInSlice; 
-					grid.verticesPointValue[2] = gridSlicesData[x+1][y+1][z];
+					grid.verticesPosition[2].y = (x+1); 
+					grid.verticesPosition[2].z = z; 
+					grid.verticesPointValue[2] = gridSlicesData[x+1][x+1][z];
 					
 					// Point 3
 					grid.verticesPosition[3].x = x+1; 
-					grid.verticesPosition[3].y = y*numPointsInXDirection; 
-					grid.verticesPosition[3].z = z*numPointsInSlice; 
-					grid.verticesPointValue[3] = gridSlicesData[x+1][y][z];
+					grid.verticesPosition[3].y = x; 
+					grid.verticesPosition[3].z = z; 
+					grid.verticesPointValue[3] = gridSlicesData[x+1][x][z];
 					
 					// Point 4
 					grid.verticesPosition[4].x = x; 
-					grid.verticesPosition[4].y = y*numPointsInXDirection; 
-					grid.verticesPosition[4].z = (z+1)*numPointsInSlice; 
-					grid.verticesPointValue[4] = gridSlicesData[x][y][z+1];
+					grid.verticesPosition[4].y = x; 
+					grid.verticesPosition[4].z = (z+1); 
+					grid.verticesPointValue[4] = gridSlicesData[x][x][z+1];
 					
 					// Point 5
 					grid.verticesPosition[5].x = x; 
-					grid.verticesPosition[5].y = (y+1)*numPointsInXDirection; 
-					grid.verticesPosition[5].z = (z+1)*numPointsInSlice; 
-					grid.verticesPointValue[5] = gridSlicesData[x][y+1][z+1];
+					grid.verticesPosition[5].y = (x+1); 
+					grid.verticesPosition[5].z = (z+1); 
+					grid.verticesPointValue[5] = gridSlicesData[x][x+1][z+1];
 					
 					// Point 6
 					grid.verticesPosition[6].x = (x+1); 
-					grid.verticesPosition[6].y = (y+1)*numPointsInXDirection; 
-					grid.verticesPosition[6].z = (z+1)*numPointsInSlice; 
-					grid.verticesPointValue[6] = gridSlicesData[x+1][y+1][z+1];
+					grid.verticesPosition[6].y = (x+1); 
+					grid.verticesPosition[6].z = (z+1); 
+					grid.verticesPointValue[6] = gridSlicesData[x+1][x+1][z+1];
 					
 					// Point 7
 					grid.verticesPosition[7].x = (x+1); 
-					grid.verticesPosition[7].y = y*numPointsInXDirection; 
-					grid.verticesPosition[7].z = (z+1)*numPointsInSlice; 
-					grid.verticesPointValue[7] = gridSlicesData[x+1][y][z+1];
+					grid.verticesPosition[7].y = x; 
+					grid.verticesPosition[7].z = (z+1); 
+					grid.verticesPointValue[7] = gridSlicesData[x+1][x][z+1];
 					Polygonise(grid);
 					for(Triangle3D  triangle: triangles) {
 						trilist.add(triangle);
 					}
 					triangles.clear();
-				}
-			}
 		}
-		System.out.println("Number of triangle with 0/255:: " + number);
-		System.out.println("Number of triangle with OTHER:: " + numberTwo);
-		System.out.println("Number of triangles:: " + trilist.size());
-		//writeObjFile();
+
+		writeObjFile();
 	}
 
 	public void initiateMCProcess(String currentFileName, int indexFile, int totalFiles) {
@@ -174,7 +169,6 @@ public class MCPolygons {
 			}
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, currentFileName);
-			
 			e.printStackTrace();
 		}
 	}
@@ -292,13 +286,13 @@ public class MCPolygons {
 		try {
 			for (Iterator iterator = trilist.iterator(); iterator.hasNext();) {
 				Triangle3D triangle3d = (Triangle3D) iterator.next();
-				fileWriter.write("v " + triangle3d.points[0].x + " " + triangle3d.points[0].y + " "
+				fileWriter.write("f " + triangle3d.points[0].x + " " + triangle3d.points[0].y + " "
 						+ triangle3d.points[0].z);
 				fileWriter.write("\n");
-				fileWriter.write("v " + triangle3d.points[1].x + " " + triangle3d.points[1].y + " "
+				fileWriter.write("f " + triangle3d.points[1].x + " " + triangle3d.points[1].y + " "
 						+ triangle3d.points[1].z);
 				fileWriter.write("\n");
-				fileWriter.write("v " + triangle3d.points[2].x + " " + triangle3d.points[2].y + " "
+				fileWriter.write("f " + triangle3d.points[2].x + " " + triangle3d.points[2].y + " "
 						+ triangle3d.points[2].z);
 				fileWriter.write("\n");
 			}
