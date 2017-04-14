@@ -1,4 +1,4 @@
-package ie.dcu.model;
+/*package ie.dcu.model;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -73,14 +73,15 @@ public class MCPolygons {
 		for (int i = 0; i < fileSelections.length; i++) {
 			initiateMCProcess(fileSelections[i].getName(), i, fileSelections.length);
 		}
-		for (int z = 0; z < fileSelections.length-1; z++) {
-			generateMarchingCubePolygons(fileSelections.length, z);
+			for (int sliceNumber = 0; sliceNumber < fileSelections.length; sliceNumber++) {
+			generateMarchingCubePolygons(sliceNumber);
 		}
 		try {
 			writeObjFile();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		//System.out.println(Arrays.deepToString(gridSlicesData));
 		System.out.println("Number of Grids having no triangles:: " + number);
 		System.out.println("Number of triangle with min one triangle:: " + numberTwo);
 		System.out.println("Number of triangles:: " + trilist.size());	
@@ -90,7 +91,7 @@ public class MCPolygons {
 		System.out.println("Total Time taken to store image data into temporary array : " + (end-start));
 	}
 
-	private void generateMarchingCubePolygons(int totalFiles, int z) {
+	private void generateMarchingCubePolygons(int z) {
 		for (int x = 0; x < ImageConstants.ROWS-1; x++) { 
 					// Point 0
 					grid.verticesPosition[0].x = x; 
@@ -154,6 +155,7 @@ public class MCPolygons {
 		int max = 0;
 		try {
 			BufferedImage image = ImageIO.read(new File(folderData + "\\" + currentFileName + ".png"));
+			System.out.println(folderData + "\\" + currentFileName + ".png");
 			for (int i = 0; i < ImageConstants.ROWS; i++) {
 				for (int j = 0; j < ImageConstants.COLUMNS; j++) {
 					int sample = image.getRGB(i, j) & 0x0FFF;
@@ -170,6 +172,9 @@ public class MCPolygons {
 					int sample = image.getRGB(i, j) & 0x0FFF;
 					sample = (((sample - min) * 255) / (max - min)) + 0;
 					gridSlicesData[i][j][indexFile] = sample;
+					if(sample==255) {
+						System.out.println(i + " " + j  + " " + indexFile);
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -178,22 +183,22 @@ public class MCPolygons {
 		}
 	}
 
-	/*
+	
 	 * Given a grid cell and an isolevel, calculate the triangular facets
 	 * required to represent the isosurface through the cell. Return the number
 	 * of triangular facets, the array "triangles" will be loaded up with the
 	 * verticesPosition at most 5 triangular facets. 0 will be returned if the
 	 * grid cell is either totally above of totally below the isolevel.
-	 */
+	 
 	private int Polygonise(GridCell grid) {
 		int i, ntriang;
 		int cubeindex;
 		final Point3D vertlist[] = new Point3D[12];
 		float isolevel = ImageConstants.ISO_VALUE;
-		/*
+		
 		 * Determine the index into the edge table which tells us which
 		 * verticesPosition are inside of the surface
-		 */
+		 
 		cubeindex = 0;
 		if (grid.verticesPointValue[0] < isolevel) {
 			cubeindex |= 1;
@@ -301,10 +306,10 @@ public class MCPolygons {
 		}
 	}
 
-	/*
+	
 	 * Linearly interpolate the position where an isosurface cuts an edge
 	 * between two verticesPosition, each with their own scalar value
-	 */
+	 
 	private Point3D VertexInterp(float isolevel, Point3D p1, Point3D p2, float valp1, float valp2) {
 		float mu;
 		final Point3D p = new Point3D();
@@ -332,3 +337,4 @@ public class MCPolygons {
 		}
 	}
 }
+*/

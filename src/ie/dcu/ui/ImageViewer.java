@@ -26,8 +26,8 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ie.dcu.model.MCPolygons;
 import ie.dcu.process.ImageProcessUtil;
+import ie.dcu.process.MCPolygons;
 
 public class ImageViewer extends JFrame {
 	private static final long serialVersionUID = 1L;
