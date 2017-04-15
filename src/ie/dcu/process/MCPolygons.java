@@ -75,8 +75,7 @@ public class MCPolygons {
 		}
 		try {
 			writeVertices();
-			System.out.println("Total Triangles " + totalTriangle + " == " + trilist.size());
-			//writeFaces(totalSlices);
+			writeFaces();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -111,19 +110,21 @@ public class MCPolygons {
 		}
 	}
 
-	private void writeFaces(int totalSlices) throws IOException {
+	private void writeFaces() throws IOException {
 		int i = 1;
-		for (int j = 0; j < trilist.size(); j++) {
-			fileWriter.write("f " + i + " " + (i+1) + " "
-					+ (i+2));
+		for (int j = 0; j <= 3*trilist.size(); j=j+3) {
+			fileWriter.write("f " + i + " " + (i+1) + " " + (i+2));
 			fileWriter.write("\n");
-			i++;
+			i = i + 3;
 		}
-		
 	}
 	
 	private void generateMarchingCubePolygons(GridCell gridCell) {
 			int numberTriangles = Polygonise(gridCell);
+			// calc tri norms
+			for (int indx = 0; indx < numberTriangles; indx++) {
+				triangles.get(indx).calcnormal(invertnormals);
+			}
 			totalTriangle += numberTriangles;
 			for(Triangle3D  triangle: triangles) {
 				trilist.add(triangle);
@@ -245,74 +246,83 @@ public class MCPolygons {
 
 	public void initializeCubeGridCreation(String firstFile, String secondFile, int index) {
 		GridCell gridCell = new GridCell();
-		int min = 0;
-		int max = 4095;
 		int sample1[] = new int[4];
 		int sample2[] = new int[4];
 		try {
 			BufferedImage image1 = ImageIO.read(new File(folderData + "\\" + firstFile + ".png"));
 			BufferedImage image2 = ImageIO.read(new File(folderData + "\\" + secondFile + ".png"));
-			for (int i = 0; i < ImageConstants.ROWS -1; i++) {
+			for (int i = 0; i < ImageConstants.ROWS-1; i++) {
+				for (int j = 0; j < ImageConstants.COLUMNS-1; j++) {
+/*					fileWriter.write(j + "," + i + "\n");
+					fileWriter.write(j + "," + (i+1) + "\n");
+					fileWriter.write((j+1) + "," + (i+1) + "\n");
+					fileWriter.write((j+1) + "," + i + "\n");
+					fileWriter.write("----------------------" + "\n");*/
+					
 					// 4 samples from slice 1
-					sample1[0] = (((image1.getRGB(i, i) & 0x0FFF - min) * 255) / (max - min)) + 0;
-					sample1[1] = (((image1.getRGB(i, i+1) & 0x0FFF - min) * 255) / (max - min)) + 0;
-					sample1[2] = (((image1.getRGB(i+1, i+1) & 0x0FFF - min) * 255) / (max - min)) + 0;
-					sample1[3] = (((image1.getRGB(i+1, i) & 0x0FFF - min) * 255) / (max - min)) + 0;
+					sample1[0] = image1.getRGB(j, i) & 0x0FFF;
+					sample1[1] = image1.getRGB(j, i+1) & 0x0FFF;
+					sample1[2] = image1.getRGB(j+1, i+1) & 0x0FFF;
+					sample1[3] = image1.getRGB(j+1, i) & 0x0FFF;
 					// 4 samples from slice 2
-					sample2[0] = (((image2.getRGB(i, i) & 0x0FFF - min) * 255) / (max - min)) + 0;
-					sample2[1] = (((image2.getRGB(i, i+1) & 0x0FFF - min) * 255) / (max - min)) + 0;
-					sample2[2] = (((image2.getRGB(i+1, i+1) & 0x0FFF - min) * 255) / (max - min)) + 0;
-					sample2[3] = (((image2.getRGB(i+1, i) & 0x0FFF - min) * 255) / (max - min)) + 0;
+					sample2[0] = image2.getRGB(j, i) & 0x0FFF;
+					sample2[1] = image2.getRGB(j, i+1) & 0x0FFF;
+					sample2[2] = image2.getRGB(j+1, i+1) & 0x0FFF;
+					sample2[3] = image2.getRGB(j+1, i) & 0x0FFF;
 					
 					// Point 0
 					gridCell.verticesPosition[0].x = i; 
-					gridCell.verticesPosition[0].y = i; 
+					gridCell.verticesPosition[0].y = j; 
 					gridCell.verticesPosition[0].z = index; 
 					gridCell.verticesPointValue[0] = sample1[0];
 					
 					// Point 1
 					gridCell.verticesPosition[1].x = i; 
-					gridCell.verticesPosition[1].y = (i+1); 
+					gridCell.verticesPosition[1].y = (j+1); 
 					gridCell.verticesPosition[1].z = index; 
 					gridCell.verticesPointValue[1] = sample1[1];
 					
 					// Point 2
 					gridCell.verticesPosition[2].x = i+1; 
-					gridCell.verticesPosition[2].y = (i+1); 
+					gridCell.verticesPosition[2].y = (j+1); 
 					gridCell.verticesPosition[2].z = index; 
 					gridCell.verticesPointValue[2] = sample1[2];
 					
 					// Point 3
 					gridCell.verticesPosition[3].x = i+1; 
-					gridCell.verticesPosition[3].y = i; 
+					gridCell.verticesPosition[3].y = j; 
 					gridCell.verticesPosition[3].z = index; 
 					gridCell.verticesPointValue[3] = sample1[3] ;
 					
 					// Point 4
 					gridCell.verticesPosition[4].x = i; 
-					gridCell.verticesPosition[4].y = i; 
+					gridCell.verticesPosition[4].y = j; 
 					gridCell.verticesPosition[4].z = index+1; 
 					gridCell.verticesPointValue[4] = sample2[0];
 					
 					// Point 5
 					gridCell.verticesPosition[5].x = i; 
-					gridCell.verticesPosition[5].y = (i+1); 
+					gridCell.verticesPosition[5].y = (j+1); 
 					gridCell.verticesPosition[5].z = index+1; 
 					gridCell.verticesPointValue[5] = sample2[1];
 					
 					// Point 6
 					gridCell.verticesPosition[6].x = i+1; 
-					gridCell.verticesPosition[6].y = (i+1); 
+					gridCell.verticesPosition[6].y = (j+1); 
 					gridCell.verticesPosition[6].z = index+1; 
 					gridCell.verticesPointValue[6] = sample2[2];
 					
 					// Point 7
 					gridCell.verticesPosition[7].x = i+1; 
-					gridCell.verticesPosition[7].y = i; 
+					gridCell.verticesPosition[7].y = j; 
 					gridCell.verticesPosition[7].z = index+1; 
 					gridCell.verticesPointValue[7] = sample2[3] ;
 					generateMarchingCubePolygons(gridCell);
+			
+				}
 			}
+			
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
