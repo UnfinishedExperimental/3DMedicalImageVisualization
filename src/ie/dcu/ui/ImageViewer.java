@@ -1,10 +1,12 @@
 package ie.dcu.ui;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -101,7 +103,13 @@ public class ImageViewer extends JFrame {
 		mcButton.setEnabled(false);
 		mcButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				initMarchingCuberActionPerformed(evt);
+				Desktop desktop = Desktop.getDesktop();
+				String currentDir = System.getProperty("user.dir");
+				try {
+					desktop.open(new File(currentDir));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 
@@ -195,14 +203,6 @@ public class ImageViewer extends JFrame {
 		imageScroller.getViewport().add(jlab);
 	}
 
-	public void initMarchingCuberActionPerformed(ActionEvent evt) {// GEN-FIRST:event_clearImageAreaActionPerformed
-		File[] rawFilesSorted = rawFileFolder.listFiles();
-		Arrays.sort(rawFilesSorted, new Comparator<File>() {
-	        public int compare(File f1, File f2) {
-				return Integer.parseInt(f1.getName())-Integer.parseInt(f2.getName());
-	        }
-		}); 
-	}
 
 	public void clearImageAreaActionPerformed(ActionEvent evt) {// GEN-FIRST:event_clearImageAreaActionPerformed
 		jlab.setIcon(null);
