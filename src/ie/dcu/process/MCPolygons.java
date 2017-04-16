@@ -66,7 +66,7 @@ public class MCPolygons {
 		int totalSlices = fileSelections.length;
 		Arrays.sort(fileSelections, new Comparator<File>() {
 			public int compare(File f1, File f2) {
-				return Integer.parseInt(f1.getName()) - Integer.parseInt(f2.getName());
+				return Integer.parseInt(f2.getName()) - Integer.parseInt(f1.getName());
 			}
 		});
 		initResolution();
