@@ -76,26 +76,15 @@ public class MCPolygons {
 		try {
 			writeVertices();
 			writeFaces();
+			//freeDataStructures();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		long end = System.currentTimeMillis();
-		JOptionPane.showMessageDialog(null, "Total time to process the data set  : " + (float)((end-start)/1000) + " seconds");
+		JOptionPane.showMessageDialog(null, "Total time to process the data set  : " + (float)((end-start)/1000f) + " seconds");
 	}
 
 	private void writeVertices() throws IOException {
-/*		for (Iterator<Triangle3D> iterator = trilist.iterator(); iterator.hasNext();) {
-			Triangle3D triangle3d = (Triangle3D) iterator.next();
-			fileWriter.write("v " + (float)(triangle3d.points[0].x/ImageConstants.ROWS) + " " + (float)(triangle3d.points[0].y/ImageConstants.COLUMNS) + " "
-					+ (float)(triangle3d.points[0].z/totalSlices));
-			fileWriter.write("\n");
-			fileWriter.write("v " + (float)(triangle3d.points[1].x/ImageConstants.ROWS) + " " + (float)(triangle3d.points[1].y/ImageConstants.COLUMNS) + " "
-					+ (float)(triangle3d.points[1].z/totalSlices));
-			fileWriter.write("\n");
-			fileWriter.write("v " + (float)(triangle3d.points[2].x/ImageConstants.ROWS) + " " + (float)(triangle3d.points[2].y/ImageConstants.COLUMNS) + " "
-					+ (float)(triangle3d.points[2].z/totalSlices));
-			fileWriter.write("\n");
-		}*/
 		for (Iterator<Triangle3D> iterator = trilist.iterator(); iterator.hasNext();) {
 			Triangle3D triangle3d = (Triangle3D) iterator.next();
 			fileWriter.write("v " + triangle3d.points[0].x + " " + triangle3d.points[0].y + " "
@@ -111,12 +100,15 @@ public class MCPolygons {
 	}
 
 	private void writeFaces() throws IOException {
+		System.out.println(trilist.size());
 		int i = 1;
-		for (int j = 0; j <= 3*trilist.size(); j=j+3) {
+		for (int j = 0; j < trilist.size(); j++) {
 			fileWriter.write("f " + i + " " + (i+1) + " " + (i+2));
 			fileWriter.write("\n");
-			i = i + 3;
+			i+=3;
 		}
+		fileWriter.flush();
+		fileWriter.close();
 	}
 	
 	private void generateMarchingCubePolygons(GridCell gridCell) {
@@ -335,6 +327,19 @@ public class MCPolygons {
 		try {
 			newFile = new File("bunnyFile.obj");
 			fileWriter = new FileWriter(newFile);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void freeDataStructures() {
+		triangles = null;
+		trilist = null;
+		try {
+			fileWriter.flush();
+			fileWriter.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
