@@ -25,6 +25,7 @@ public class MCPolygons {
 	
 	public List<Triangle3D> triangles;
 	public List<Triangle3D> trilist;
+	public List<Point3D> triNormallist;
 	public int normalTriangle;
 	public boolean invertnormals = true;
 	public boolean closesides = true;
@@ -75,6 +76,7 @@ public class MCPolygons {
 		}
 		try {
 			writeVertices();
+			writeNormals();
 			writeFaces();
 			//freeDataStructures();
 		} catch (IOException e) {
@@ -98,6 +100,15 @@ public class MCPolygons {
 			fileWriter.write("\n");
 		}
 	}
+	
+	private void writeNormals() throws IOException {
+		for (Iterator<Point3D> iterator = triNormallist.iterator(); iterator.hasNext();) {
+			Point3D pointNormal = (Point3D) iterator.next();
+			fileWriter.write("vn " + pointNormal.x + " " + pointNormal.y + " "
+					+ pointNormal.z);
+			fileWriter.write("\n");
+		}
+	}
 
 	private void writeFaces() throws IOException {
 		System.out.println(trilist.size());
@@ -115,7 +126,7 @@ public class MCPolygons {
 			int numberTriangles = Polygonise(gridCell);
 			// calc tri norms
 			for (int indx = 0; indx < numberTriangles; indx++) {
-				triangles.get(indx).calcnormal(invertnormals);
+				triNormallist.add(triangles.get(indx).calcnormal(invertnormals));
 			}
 			totalTriangle += numberTriangles;
 			for(Triangle3D  triangle: triangles) {
@@ -323,23 +334,11 @@ public class MCPolygons {
 	private void initResolution() {
 		triangles = new ArrayList<Triangle3D>();
 		trilist = new ArrayList<Triangle3D>();
+		triNormallist = new ArrayList<Point3D>();
 		trilist.clear();
 		try {
 			newFile = new File("bunnyFile.obj");
 			fileWriter = new FileWriter(newFile);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private void freeDataStructures() {
-		triangles = null;
-		trilist = null;
-		try {
-			fileWriter.flush();
-			fileWriter.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

@@ -24,6 +24,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -33,6 +34,8 @@ import ie.dcu.process.MCPolygons;
 
 public class ImageViewer extends JFrame {
 	private static final long serialVersionUID = 1L;
+	public boolean running = false;			// Is animation running?
+	public Timer timer;						// Chart update timer
 	// Variables declaration
 	private JMenuItem clearImageArea;
 	private JMenuItem openImageExplorer;
@@ -46,7 +49,6 @@ public class ImageViewer extends JFrame {
 	// create a label
 	JLabel jlab = new JLabel();
 	// Path of input raw file data
-	private File rawFileFolder;
 	List<File> rawFilesSorted;
 	ImageProcessUtil imageProcess = new ImageProcessUtil();
 	ArrayList<String> sliceDataSaved[];
@@ -98,6 +100,19 @@ public class ImageViewer extends JFrame {
 		animButton.setEnabled(false);
 		animButton.setFocusable(false);
 		animButton.setBackground(new Color(200,240,200));
+		animButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				slideShowPerformed(evt);
+			}
+		});
+		timer = new Timer(300, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				for (int i = 1; i < fileSelections.length; i++) {
+					ImageIcon imageIcon = imageProcess.imageFileProcess(true, (i + 1), fileSelections[i].toString());
+					scaleAndSetImage(imageIcon);
+				}
+			}
+		}); // end timer construction
 		
 		mcButton = new JButton("Open .obj file");
 		mcButton.setEnabled(false);
@@ -119,8 +134,6 @@ public class ImageViewer extends JFrame {
 			public void actionPerformed(ActionEvent evt) {
 				clearImageAreaActionPerformed(evt);
 			}
-
-
 		});
 		imageMenu.add(clearImageArea);
 		imageMenuBar.add(imageMenu);
@@ -169,17 +182,6 @@ public class ImageViewer extends JFrame {
 				MCPolygons marchingCube= new MCPolygons();
 				marchingCube.generateFloodFilledData(fileSelections, currentDir);
 			} 
-/*			 System.out.println(Arrays.deepToString(ImageProcessUtil.gridSlicesData));
-			for (int a = 0; a < 512; a++) {
-				for (int b = 0; b < 512; b++) {
-					for (int j = 0; j < fileSelections.length; j++) {
-						System.out.println(ImageProcessUtil.gridSlicesData[a][b][j]);
-					}
-				}
-			}*/
-/*			
-			mc.initiateMCProcess(imageProcess.gridSlicesData, fileSelections.length);*/
-			// JOptionPane.showMessageDialog(null, "Data is written in the array");
 		}
 		animButton.setEnabled(true);
 		mcButton.setEnabled(true);
@@ -206,5 +208,20 @@ public class ImageViewer extends JFrame {
 
 	public void clearImageAreaActionPerformed(ActionEvent evt) {// GEN-FIRST:event_clearImageAreaActionPerformed
 		jlab.setIcon(null);
+	}
+	
+	public void slideShowPerformed(ActionEvent evt) {// event_slideShowPerformed
+		if (running == true) {
+			running = false;
+			animButton.setBackground(new Color(200, 240, 200));
+			animButton.setText("RUN");
+			timer.stop();
+		} else {
+			running = true;
+			animButton.setBackground(new Color(240, 200, 200));
+			animButton.setText("STOP");
+			timer.start();
+		}
+
 	}
 }
