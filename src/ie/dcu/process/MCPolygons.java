@@ -236,15 +236,14 @@ public class MCPolygons {
 	 //* between two verticesPosition, each with their own scalar value
 	 
 	private Point3D VertexInterp(float isolevel, Point3D p1, Point3D p2, float valp1, float valp2) {
-		float mu;
+		//float mu;
 		final Point3D p = new Point3D();
 		p.x = p.y = p.z = 0.0f;
-		mu = ((isolevel - valp1) / (valp2 - valp1));
+		float mu = Math.abs(isolevel - valp1) / Math.abs(valp2 - valp1);
 		p.x = p1.x + mu * (p2.x - p1.x);
 		p.y = p1.y + mu * (p2.y - p1.y);
 		p.z = p1.z + mu * (p2.z - p1.z);
-
-		return (p);
+		return p;
 	}
 
 	public void initializeCubeGridCreation(String firstFile, String secondFile, int index) {
@@ -263,15 +262,15 @@ public class MCPolygons {
 					fileWriter.write("----------------------" + "\n");*/
 					
 					// 4 samples from slice 1
-					sample1[0] = image1.getRGB(j, i) & 0x0FFF;
-					sample1[1] = image1.getRGB(j, i+1) & 0x0FFF;
-					sample1[2] = image1.getRGB(j+1, i+1) & 0x0FFF;
-					sample1[3] = image1.getRGB(j+1, i) & 0x0FFF;
+					sample1[0] = image1.getRGB(i, j) & 0x0FFF;
+					sample1[1] = image1.getRGB(i, j+1) & 0x0FFF;
+					sample1[2] = image1.getRGB(i+1, j+1) & 0x0FFF;
+					sample1[3] = image1.getRGB(i+1, j) & 0x0FFF;
 					// 4 samples from slice 2
-					sample2[0] = image2.getRGB(j, i) & 0x0FFF;
-					sample2[1] = image2.getRGB(j, i+1) & 0x0FFF;
-					sample2[2] = image2.getRGB(j+1, i+1) & 0x0FFF;
-					sample2[3] = image2.getRGB(j+1, i) & 0x0FFF;
+					sample2[0] = image2.getRGB(i, j) & 0x0FFF;
+					sample2[1] = image2.getRGB(i, j+1) & 0x0FFF;
+					sample2[2] = image2.getRGB(i+1, j+1) & 0x0FFF;
+					sample2[3] = image2.getRGB(i+1, j) & 0x0FFF;
 					
 					// Point 0
 					gridCell.verticesPosition[0].x = i; 
@@ -337,7 +336,7 @@ public class MCPolygons {
 		triNormallist = new ArrayList<Point3D>();
 		trilist.clear();
 		try {
-			newFile = new File("bunnyFile.obj");
+			newFile = new File("bunny.obj");
 			fileWriter = new FileWriter(newFile);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
