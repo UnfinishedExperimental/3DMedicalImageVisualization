@@ -27,7 +27,6 @@ public class MCPolygons {
 	public List<Triangle3D> trilist;
 	public List<Point3D> triNormallist;
 	public int normalTriangle;
-	public boolean invertnormals = true;
 	public boolean closesides = true;
 	File newFile;
 	FileWriter fileWriter;
@@ -126,7 +125,7 @@ public class MCPolygons {
 			int numberTriangles = Polygonise(gridCell);
 			// calc tri norms
 			for (int indx = 0; indx < numberTriangles; indx++) {
-				triNormallist.add(triangles.get(indx).calcnormal(invertnormals));
+				triNormallist.add(triangles.get(indx).calcnormal());
 			}
 			totalTriangle += numberTriangles;
 			for(Triangle3D  triangle: triangles) {
@@ -236,14 +235,13 @@ public class MCPolygons {
 	 //* between two verticesPosition, each with their own scalar value
 	 
 	private Point3D VertexInterp(float isolevel, Point3D p1, Point3D p2, float valp1, float valp2) {
-		//float mu;
-		final Point3D p = new Point3D();
-		p.x = p.y = p.z = 0.0f;
-		float mu = Math.abs(isolevel - valp1) / Math.abs(valp2 - valp1);
-		p.x = p1.x + mu * (p2.x - p1.x);
-		p.y = p1.y + mu * (p2.y - p1.y);
-		p.z = p1.z + mu * (p2.z - p1.z);
-		return p;
+		
+		double mu = -valp1/ (valp2 - valp1);
+		float muCosine = (float) ((1-Math.cos(mu*Math.PI))/2);
+		float px = p1.x + muCosine * (p2.x - p1.x);
+		float py = p1.y + muCosine * (p2.y - p1.y);
+		float pz = p1.z + muCosine * (p2.z - p1.z);
+		return new Point3D(px, py, pz);
 	}
 
 	public void initializeCubeGridCreation(String firstFile, String secondFile, int index) {
