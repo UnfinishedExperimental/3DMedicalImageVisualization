@@ -36,5 +36,4 @@ public class Triangle3D {
 		nv.z = (v1.x * v2.y) - (v1.y * v2.x);
 		return nv;
 	}
-
 }
