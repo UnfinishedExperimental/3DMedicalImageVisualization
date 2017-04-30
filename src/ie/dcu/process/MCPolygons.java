@@ -122,8 +122,8 @@ public class MCPolygons {
 		fileWriter.close();
 	}
 	
-	private void generateMarchingCubePolygons(GridCell gridCell, Map<Point3D, Float> interpolationData) {
-			int numberTriangles = Polygonise(gridCell, interpolationData);
+	private void generateMarchingCubePolygons(GridCell gridCell) {
+			int numberTriangles = Polygonise(gridCell);
 			// calc tri norms
 			for (int indx = 0; indx < numberTriangles; indx++) {
 				triNormallist.add(triangles.get(indx).calcnormal());
@@ -135,7 +135,7 @@ public class MCPolygons {
 			triangles.clear();
 	}
 
-	private int Polygonise(GridCell gridCell, Map<Point3D, Float> interpolationData) {
+	private int Polygonise(GridCell gridCell) {
 		Point3D vertlist[] = new Point3D[12];
 		float isolevel = ImageConstants.ISO_VALUE;
 		
@@ -176,54 +176,53 @@ public class MCPolygons {
 		// int temp = edgeTable[cubeindex] & 1;
 		if ((MCLookUpTables.edgeTable[cubeindex] & 1) != 0) {
 			vertlist[0] = VertexInterp(isolevel, gridCell.verticesPosition[0], gridCell.verticesPosition[1],
-					gridCell.verticesPointValue[0], gridCell.verticesPointValue[1], interpolationData);
+					gridCell.verticesPointValue[0], gridCell.verticesPointValue[1]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 2) != 0) {
 			vertlist[1] = VertexInterp(isolevel, gridCell.verticesPosition[1], gridCell.verticesPosition[2],
-					gridCell.verticesPointValue[1], gridCell.verticesPointValue[2], interpolationData);
+					gridCell.verticesPointValue[1], gridCell.verticesPointValue[2]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 4) != 0) {
 			vertlist[2] = VertexInterp(isolevel, gridCell.verticesPosition[2], gridCell.verticesPosition[3],
-					gridCell.verticesPointValue[2], gridCell.verticesPointValue[3], interpolationData);
+					gridCell.verticesPointValue[2], gridCell.verticesPointValue[3]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 8) != 0) {
 			vertlist[3] = VertexInterp(isolevel, gridCell.verticesPosition[3], gridCell.verticesPosition[0],
-					gridCell.verticesPointValue[3], gridCell.verticesPointValue[0], interpolationData);
+					gridCell.verticesPointValue[3], gridCell.verticesPointValue[0]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 16) != 0) {
 			vertlist[4] = VertexInterp(isolevel, gridCell.verticesPosition[4], gridCell.verticesPosition[5],
-					gridCell.verticesPointValue[4], gridCell.verticesPointValue[5], interpolationData);
+					gridCell.verticesPointValue[4], gridCell.verticesPointValue[5]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 32) != 0) {
 			vertlist[5] = VertexInterp(isolevel, gridCell.verticesPosition[5], gridCell.verticesPosition[6],
-					gridCell.verticesPointValue[5], gridCell.verticesPointValue[6], interpolationData);
+					gridCell.verticesPointValue[5], gridCell.verticesPointValue[6]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 64) != 0) {
 			vertlist[6] = VertexInterp(isolevel, gridCell.verticesPosition[6], gridCell.verticesPosition[7],
-					gridCell.verticesPointValue[6], gridCell.verticesPointValue[7], interpolationData);
+					gridCell.verticesPointValue[6], gridCell.verticesPointValue[7]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 128) != 0) {
 			vertlist[7] = VertexInterp(isolevel, gridCell.verticesPosition[7], gridCell.verticesPosition[4],
-					gridCell.verticesPointValue[7], gridCell.verticesPointValue[4], interpolationData);
+					gridCell.verticesPointValue[7], gridCell.verticesPointValue[4]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 256) != 0) {
 			vertlist[8] = VertexInterp(isolevel, gridCell.verticesPosition[0], gridCell.verticesPosition[4],
-					gridCell.verticesPointValue[0], gridCell.verticesPointValue[4], interpolationData);
+					gridCell.verticesPointValue[0], gridCell.verticesPointValue[4]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 512) != 0) {
 			vertlist[9] = VertexInterp(isolevel, gridCell.verticesPosition[1], gridCell.verticesPosition[5],
-					gridCell.verticesPointValue[1], gridCell.verticesPointValue[5], interpolationData);
+					gridCell.verticesPointValue[1], gridCell.verticesPointValue[5]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 1024) != 0) {
 			vertlist[10] = VertexInterp(isolevel, gridCell.verticesPosition[2], gridCell.verticesPosition[6],
-					gridCell.verticesPointValue[2], gridCell.verticesPointValue[6], interpolationData);
+					gridCell.verticesPointValue[2], gridCell.verticesPointValue[6]);
 		}
 		if ((MCLookUpTables.edgeTable[cubeindex] & 2048) != 0) {
 			vertlist[11] = VertexInterp(isolevel, gridCell.verticesPosition[3], gridCell.verticesPosition[7],
-					gridCell.verticesPointValue[3], gridCell.verticesPointValue[7], interpolationData);
+					gridCell.verticesPointValue[3], gridCell.verticesPointValue[7]);
 		}
-		// Clear the Map after every two slice read
-		interpolationData.clear();
+
 		// Create the triangle 
 		int ntriang = 0;
 		for (int i = 0; MCLookUpTables.triTable[cubeindex][i] != -1; i += 3) {
@@ -237,8 +236,8 @@ public class MCPolygons {
 	 //* Linearly interpolate the position where an isosurface cuts an edge
 	 //* between two verticesPosition, each with their own scalar value
 	 
-	private Point3D VertexInterp(float isolevel, Point3D p1, Point3D p2, float valp1, float valp2, Map<Point3D, Float> interpolationData) {
-		float mu = -valp1/ (valp2 - valp1);
+	private Point3D VertexInterp(float isolevel, Point3D p1, Point3D p2, float valp1, float valp2) {
+		float mu = (isolevel-valp1)/ (valp2 - valp1);
 		float px = p1.x + mu * (p2.x - p1.x);
 		float py = p1.y + mu * (p2.y - p1.y);
 		float pz = p1.z + mu * (p2.z - p1.z);
@@ -276,50 +275,50 @@ public class MCPolygons {
 					gridCell.verticesPosition[0].x = i; 
 					gridCell.verticesPosition[0].y = j; 
 					gridCell.verticesPosition[0].z = index; 
-					gridCell.verticesPointValue[0] = sample1[0];
+					gridCell.verticesPointValue[0] = interpolationData.get(new Point3D(i, j, index));
 					
 					// Point 1
 					gridCell.verticesPosition[1].x = i; 
 					gridCell.verticesPosition[1].y = (j+1); 
 					gridCell.verticesPosition[1].z = index; 
-					gridCell.verticesPointValue[1] = sample1[1];
+					gridCell.verticesPointValue[1] = interpolationData.get(new Point3D(i, j+1, index));
 					
 					// Point 2
 					gridCell.verticesPosition[2].x = i+1; 
 					gridCell.verticesPosition[2].y = (j+1); 
 					gridCell.verticesPosition[2].z = index; 
-					gridCell.verticesPointValue[2] = sample1[2];
+					gridCell.verticesPointValue[2] = interpolationData.get(new Point3D(i+1, j+1, index));
 					
 					// Point 3
 					gridCell.verticesPosition[3].x = i+1; 
 					gridCell.verticesPosition[3].y = j; 
 					gridCell.verticesPosition[3].z = index; 
-					gridCell.verticesPointValue[3] = sample1[3] ;
+					gridCell.verticesPointValue[3] = interpolationData.get(new Point3D(i+1, j, index));
 					
 					// Point 4
 					gridCell.verticesPosition[4].x = i; 
 					gridCell.verticesPosition[4].y = j; 
 					gridCell.verticesPosition[4].z = index+1; 
-					gridCell.verticesPointValue[4] = sample2[0];
+					gridCell.verticesPointValue[4] = interpolationData.get(new Point3D(i, j, index+1));
 					
 					// Point 5
 					gridCell.verticesPosition[5].x = i; 
 					gridCell.verticesPosition[5].y = (j+1); 
 					gridCell.verticesPosition[5].z = index+1; 
-					gridCell.verticesPointValue[5] = sample2[1];
+					gridCell.verticesPointValue[5] = interpolationData.get(new Point3D(i, j+1, index+1));
 					
 					// Point 6
 					gridCell.verticesPosition[6].x = i+1; 
 					gridCell.verticesPosition[6].y = (j+1); 
 					gridCell.verticesPosition[6].z = index+1; 
-					gridCell.verticesPointValue[6] = sample2[2];
+					gridCell.verticesPointValue[6] = interpolationData.get(new Point3D(i+1, j+1, index+1));
 					
 					// Point 7
 					gridCell.verticesPosition[7].x = i+1; 
 					gridCell.verticesPosition[7].y = j; 
 					gridCell.verticesPosition[7].z = index+1; 
-					gridCell.verticesPointValue[7] = sample2[3] ;
-					generateMarchingCubePolygons(gridCell, interpolationData);
+					gridCell.verticesPointValue[7] = interpolationData.get(new Point3D(i+1, j, index+1));
+					generateMarchingCubePolygons(gridCell);
 			
 				}
 			}
@@ -328,6 +327,8 @@ public class MCPolygons {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		// Clear the Map after every two slice read
+		interpolationData.clear();
 	}
 
 	private void initResolution() {
