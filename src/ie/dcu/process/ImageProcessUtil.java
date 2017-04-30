@@ -8,10 +8,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import ie.dcu.model.Point3D;
 import ie.dcu.ui.ImageConstants;
 
 public class ImageProcessUtil {
@@ -133,6 +136,50 @@ public class ImageProcessUtil {
 		}	
 	}
 
+	public Map<Point3D, Float> saveInterpolationPoints(String firstFile, String secondFile, int sliceNumber, String currentDir) {
+		Map<Point3D, Float> interpolationData = new HashMap<Point3D, Float>();
+		saveOneSliceperIteration(firstFile, sliceNumber, interpolationData, currentDir);
+		saveOneSliceperIteration(secondFile, sliceNumber+1, interpolationData, currentDir);
+		return interpolationData;
+	}
+
+	private void saveOneSliceperIteration(String firstFile, int sliceNumber, Map<Point3D, Float> interpolationData, String currentDir) {
+		int[] pixelDataLocal = null;
+		int sampleIndexLocal = 0;
+		int minLocal = 0;
+		int maxLocal = 0;
+		File rawImageFile = new File(currentDir  + "\\" + ImageConstants.RAW_DATA_FOLDER+ "\\" +firstFile);
+		try {
+			InputStream inputStream = new FileInputStream(rawImageFile);
+			pixelDataLocal = readBitsPerWord((int) rawImageFile.length(), inputStream);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (int y = 0; y < ImageConstants.ROWS; y++) {
+			for (int x = 0; x < ImageConstants.COLUMNS; x++) {
+				int sample = pixelDataLocal[sampleIndexLocal++] & 0x0FFF;
+				if (sample < minLocal) {
+					minLocal = sample;
+				}
+				if (sample > maxLocal) {
+					maxLocal = sample;
+				}
+			}
+		}
+		sampleIndexLocal = 0;
+		for (int y = 0; y < ImageConstants.ROWS; y++) {
+			for (int x = 0; x < ImageConstants.COLUMNS; x++) {
+				int sample = pixelDataLocal[sampleIndexLocal++] & 0x0FFF;
+				sample = (((sample - minLocal) * 255) / (maxLocal - minLocal)) + 0;
+				interpolationData.put(new Point3D(x, y, sliceNumber), (float) sample);
+			}
+		}
+		sampleIndexLocal = 0;
+		pixelDataLocal = null;
+	}
+	
 	public int[] readBitsPerWord(int fileLength, InputStream inputStream) throws IOException {
 		int numberOfWords = fileLength / 2;
 		int[] wordString = new int[numberOfWords];
