@@ -76,7 +76,7 @@ public class ImageProcessUtil {
 													// imageIcon
 		return imageIcon;
 	}
-
+/*
 	// This method is used for fetching data from raw images.
 	public void imageFilesFetchDataFF(int sliceNumber, File rawImageFile, String currentDir) {
 		int[] pixelData = new int[512*512];
@@ -135,7 +135,7 @@ public class ImageProcessUtil {
 			e.printStackTrace();
 		}	
 	}
-
+*/
 	public Map<Point3D, Float> saveInterpolationPoints(String firstFile, String secondFile, int sliceNumber, String currentDir) {
 		Map<Point3D, Float> interpolationData = new HashMap<Point3D, Float>();
 		saveOneSliceperIteration(firstFile, sliceNumber, interpolationData, currentDir);
@@ -143,15 +143,20 @@ public class ImageProcessUtil {
 		return interpolationData;
 	}
 
-	private void saveOneSliceperIteration(String firstFile, int sliceNumber, Map<Point3D, Float> interpolationData, String currentDir) {
+	private void saveOneSliceperIteration(String fileName, int sliceNumber, Map<Point3D, Float> interpolationData, String currentDir) {
 		int[] pixelDataLocal = null;
 		int sampleIndexLocal = 0;
 		int minLocal = 0;
 		int maxLocal = 0;
-		File rawImageFile = new File(currentDir  + "\\" + ImageConstants.RAW_DATA_FOLDER+ "\\" +firstFile);
+		byte[] byteArray = null;
+		File rawImageFile = new File(currentDir  + "\\" + ImageConstants.RAW_DATA_FOLDER+ "\\" +fileName);
 		try {
-			InputStream inputStream = new FileInputStream(rawImageFile);
-			pixelDataLocal = readBitsPerWord((int) rawImageFile.length(), inputStream);
+			byteArray = com.google.common.io.Files.toByteArray(rawImageFile);
+			pixelDataLocal = new int[byteArray.length/2];
+			for (int i = 0,j =0; i < byteArray.length; i+=2, j++) {
+				int sample =  (byteArray[i+1] &0x000000ff) | ((byteArray[i] &0x000000ff) << 8) & 0x0FFF;
+				pixelDataLocal[j] = sample;
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -159,7 +164,7 @@ public class ImageProcessUtil {
 		}
 		for (int y = 0; y < ImageConstants.ROWS; y++) {
 			for (int x = 0; x < ImageConstants.COLUMNS; x++) {
-				int sample = pixelDataLocal[sampleIndexLocal++] & 0x0FFF;
+				int sample = pixelDataLocal[sampleIndexLocal++];
 				if (sample < minLocal) {
 					minLocal = sample;
 				}

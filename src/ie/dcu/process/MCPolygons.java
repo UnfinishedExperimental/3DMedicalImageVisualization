@@ -34,7 +34,7 @@ public class MCPolygons {
 	File folderData = null;
 	int totalTriangle = 0;
 	ImageProcessUtil imageProcess = new ImageProcessUtil();
-	public void generateFloodFilledData(File[] fileSelections, String currentDir) {
+/*	public void generateFloodFilledData(File[] fileSelections, String currentDir) {
 		folderData = new File(currentDir + "\\" + ImageConstants.FF_DATA_FOLDER);
 		if (folderData.exists()) {
 			// Process the images and create an obj file
@@ -60,9 +60,9 @@ public class MCPolygons {
 			imageProcess.imageFilesFetchDataFF(i, fileSelections[i], currentDir);
 		}
 
-	}
+	}*/
 
-	private void initiateMCProcess(File[] fileSelections, String currentDir) {
+	public void initiateMCProcess(File[] fileSelections, String currentDir) {
 		int totalSlices = fileSelections.length;
 		Arrays.sort(fileSelections, new Comparator<File>() {
 			public int compare(File f1, File f2) {
@@ -246,86 +246,65 @@ public class MCPolygons {
 
 	public void initializeCubeGridCreation(String firstFile, String secondFile, int index, String currentDir) {
 		GridCell gridCell = new GridCell();
-		int sample1[] = new int[4];
-		int sample2[] = new int[4];
 		Map<Point3D, Float> interpolationData = imageProcess.saveInterpolationPoints(firstFile, secondFile, index, currentDir);
-		try {
-			BufferedImage image1 = ImageIO.read(new File(folderData + "\\" + firstFile + ".png"));
-			BufferedImage image2 = ImageIO.read(new File(folderData + "\\" + secondFile + ".png"));
-			for (int i = 0; i < ImageConstants.ROWS-1; i++) {
-				for (int j = 0; j < ImageConstants.COLUMNS-1; j++) {
+		for (int i = 0; i < ImageConstants.ROWS-1; i++) {
+			for (int j = 0; j < ImageConstants.COLUMNS-1; j++) {
 /*					fileWriter.write(j + "," + i + "\n");
-					fileWriter.write(j + "," + (i+1) + "\n");
-					fileWriter.write((j+1) + "," + (i+1) + "\n");
-					fileWriter.write((j+1) + "," + i + "\n");
-					fileWriter.write("----------------------" + "\n");*/
-					
-					// 4 samples from slice 1
-					sample1[0] = image1.getRGB(i, j) & 0x0FFF;
-					sample1[1] = image1.getRGB(i, j+1) & 0x0FFF;
-					sample1[2] = image1.getRGB(i+1, j+1) & 0x0FFF;
-					sample1[3] = image1.getRGB(i+1, j) & 0x0FFF;
-					// 4 samples from slice 2
-					sample2[0] = image2.getRGB(i, j) & 0x0FFF;
-					sample2[1] = image2.getRGB(i, j+1) & 0x0FFF;
-					sample2[2] = image2.getRGB(i+1, j+1) & 0x0FFF;
-					sample2[3] = image2.getRGB(i+1, j) & 0x0FFF;
-					
-					// Point 0
-					gridCell.verticesPosition[0].x = i; 
-					gridCell.verticesPosition[0].y = j; 
-					gridCell.verticesPosition[0].z = index; 
-					gridCell.verticesPointValue[0] = interpolationData.get(new Point3D(i, j, index));
-					
-					// Point 1
-					gridCell.verticesPosition[1].x = i; 
-					gridCell.verticesPosition[1].y = (j+1); 
-					gridCell.verticesPosition[1].z = index; 
-					gridCell.verticesPointValue[1] = interpolationData.get(new Point3D(i, j+1, index));
-					
-					// Point 2
-					gridCell.verticesPosition[2].x = i+1; 
-					gridCell.verticesPosition[2].y = (j+1); 
-					gridCell.verticesPosition[2].z = index; 
-					gridCell.verticesPointValue[2] = interpolationData.get(new Point3D(i+1, j+1, index));
-					
-					// Point 3
-					gridCell.verticesPosition[3].x = i+1; 
-					gridCell.verticesPosition[3].y = j; 
-					gridCell.verticesPosition[3].z = index; 
-					gridCell.verticesPointValue[3] = interpolationData.get(new Point3D(i+1, j, index));
-					
-					// Point 4
-					gridCell.verticesPosition[4].x = i; 
-					gridCell.verticesPosition[4].y = j; 
-					gridCell.verticesPosition[4].z = index+1; 
-					gridCell.verticesPointValue[4] = interpolationData.get(new Point3D(i, j, index+1));
-					
-					// Point 5
-					gridCell.verticesPosition[5].x = i; 
-					gridCell.verticesPosition[5].y = (j+1); 
-					gridCell.verticesPosition[5].z = index+1; 
-					gridCell.verticesPointValue[5] = interpolationData.get(new Point3D(i, j+1, index+1));
-					
-					// Point 6
-					gridCell.verticesPosition[6].x = i+1; 
-					gridCell.verticesPosition[6].y = (j+1); 
-					gridCell.verticesPosition[6].z = index+1; 
-					gridCell.verticesPointValue[6] = interpolationData.get(new Point3D(i+1, j+1, index+1));
-					
-					// Point 7
-					gridCell.verticesPosition[7].x = i+1; 
-					gridCell.verticesPosition[7].y = j; 
-					gridCell.verticesPosition[7].z = index+1; 
-					gridCell.verticesPointValue[7] = interpolationData.get(new Point3D(i+1, j, index+1));
-					generateMarchingCubePolygons(gridCell);
-			
-				}
+				fileWriter.write(j + "," + (i+1) + "\n");
+				fileWriter.write((j+1) + "," + (i+1) + "\n");
+				fileWriter.write((j+1) + "," + i + "\n");
+				fileWriter.write("----------------------" + "\n");*/
+				
+				// Point 0
+				gridCell.verticesPosition[0].x = i; 
+				gridCell.verticesPosition[0].y = j; 
+				gridCell.verticesPosition[0].z = index; 
+				gridCell.verticesPointValue[0] = interpolationData.get(new Point3D(i, j, index));
+				
+				// Point 1
+				gridCell.verticesPosition[1].x = i; 
+				gridCell.verticesPosition[1].y = (j+1); 
+				gridCell.verticesPosition[1].z = index; 
+				gridCell.verticesPointValue[1] = interpolationData.get(new Point3D(i, j+1, index));
+				
+				// Point 2
+				gridCell.verticesPosition[2].x = i+1; 
+				gridCell.verticesPosition[2].y = (j+1); 
+				gridCell.verticesPosition[2].z = index; 
+				gridCell.verticesPointValue[2] = interpolationData.get(new Point3D(i+1, j+1, index));
+				
+				// Point 3
+				gridCell.verticesPosition[3].x = i+1; 
+				gridCell.verticesPosition[3].y = j; 
+				gridCell.verticesPosition[3].z = index; 
+				gridCell.verticesPointValue[3] = interpolationData.get(new Point3D(i+1, j, index));
+				
+				// Point 4
+				gridCell.verticesPosition[4].x = i; 
+				gridCell.verticesPosition[4].y = j; 
+				gridCell.verticesPosition[4].z = index+1; 
+				gridCell.verticesPointValue[4] = interpolationData.get(new Point3D(i, j, index+1));
+				
+				// Point 5
+				gridCell.verticesPosition[5].x = i; 
+				gridCell.verticesPosition[5].y = (j+1); 
+				gridCell.verticesPosition[5].z = index+1; 
+				gridCell.verticesPointValue[5] = interpolationData.get(new Point3D(i, j+1, index+1));
+				
+				// Point 6
+				gridCell.verticesPosition[6].x = i+1; 
+				gridCell.verticesPosition[6].y = (j+1); 
+				gridCell.verticesPosition[6].z = index+1; 
+				gridCell.verticesPointValue[6] = interpolationData.get(new Point3D(i+1, j+1, index+1));
+				
+				// Point 7
+				gridCell.verticesPosition[7].x = i+1; 
+				gridCell.verticesPosition[7].y = j; 
+				gridCell.verticesPosition[7].z = index+1; 
+				gridCell.verticesPointValue[7] = interpolationData.get(new Point3D(i+1, j, index+1));
+				generateMarchingCubePolygons(gridCell);
+		
 			}
-			
-			
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		// Clear the Map after every two slice read
 		interpolationData.clear();
