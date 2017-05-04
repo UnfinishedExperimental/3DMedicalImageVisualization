@@ -15,7 +15,7 @@ public class ImageConstants {
 	public static final int BLACK = 0;
 	public static final int WHITE = 255;
 	
-	public static final String FF_DATA_FOLDER = "bunnyData_FF";
+	public static final String FF_DATA_FOLDER = "TestImageData";
 	public static final String RAW_DATA_FOLDER = "bunnyData";
 /*	// Marching cube Edge Lookup Table
 	public static final int EDGE_TBL[] = { // 256
