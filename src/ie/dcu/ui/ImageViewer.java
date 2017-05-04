@@ -180,7 +180,7 @@ public class ImageViewer extends JFrame {
 			int dialogResult = JOptionPane.showConfirmDialog(this, "Would you like to create the obj file ? (This will take a while)", "Generate Obj", dialogButton);
 			if(dialogResult == 0) {
 				MCPolygons marchingCube= new MCPolygons();
-				marchingCube.initiateMCProcess(fileSelections, currentDir);
+				marchingCube.initiateMCProcess(fileSelections, currentDir, true);
 			} 
 		}
 		animButton.setEnabled(true);

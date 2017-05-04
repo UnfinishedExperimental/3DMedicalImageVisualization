@@ -62,7 +62,7 @@ public class MCPolygons {
 
 	}*/
 
-	public void initiateMCProcess(File[] fileSelections, String currentDir) {
+	public void initiateMCProcess(File[] fileSelections, String currentDir, boolean rawImage) {
 		int totalSlices = fileSelections.length;
 		Arrays.sort(fileSelections, new Comparator<File>() {
 			public int compare(File f1, File f2) {
@@ -72,7 +72,7 @@ public class MCPolygons {
 		initResolution();
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < totalSlices-1; i++) {
-			initializeCubeGridCreation(fileSelections[i].getName(), fileSelections[i+1].getName(), i, currentDir);
+			initializeCubeGridCreation(fileSelections[i].getName(), fileSelections[i+1].getName(), i, currentDir, rawImage);
 		}
 		try {
 			writeVertices();
@@ -244,17 +244,11 @@ public class MCPolygons {
 		return new Point3D(px, py, pz);
 	}
 
-	public void initializeCubeGridCreation(String firstFile, String secondFile, int index, String currentDir) {
+	public void initializeCubeGridCreation(String firstFile, String secondFile, int index, String currentDir, boolean rawImage) {
 		GridCell gridCell = new GridCell();
 		Map<Point3D, Float> interpolationData = imageProcess.saveInterpolationPoints(firstFile, secondFile, index, currentDir);
 		for (int i = 0; i < ImageConstants.ROWS-1; i++) {
 			for (int j = 0; j < ImageConstants.COLUMNS-1; j++) {
-/*					fileWriter.write(j + "," + i + "\n");
-				fileWriter.write(j + "," + (i+1) + "\n");
-				fileWriter.write((j+1) + "," + (i+1) + "\n");
-				fileWriter.write((j+1) + "," + i + "\n");
-				fileWriter.write("----------------------" + "\n");*/
-				
 				// Point 0
 				gridCell.verticesPosition[0].x = i; 
 				gridCell.verticesPosition[0].y = j; 

@@ -162,15 +162,13 @@ public class ImageProcessUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		for (int y = 0; y < ImageConstants.ROWS; y++) {
-			for (int x = 0; x < ImageConstants.COLUMNS; x++) {
-				int sample = pixelDataLocal[sampleIndexLocal++];
-				if (sample < minLocal) {
-					minLocal = sample;
-				}
-				if (sample > maxLocal) {
-					maxLocal = sample;
-				}
+		for (int y = 0; y < ImageConstants.ROWS*ImageConstants.COLUMNS; y++) {
+			int sample = pixelDataLocal[sampleIndexLocal++];
+			if (sample < minLocal) {
+				minLocal = sample;
+			}
+			if (sample > maxLocal) {
+				maxLocal = sample;
 			}
 		}
 		sampleIndexLocal = 0;
