@@ -3,8 +3,9 @@ package ie.dcu.process;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -17,6 +18,12 @@ import javax.swing.JOptionPane;
 
 import com.google.common.io.Files;
 
+import darwin.jopenctm.compression.MG2Encoder;
+import darwin.jopenctm.compression.MeshEncoder;
+import darwin.jopenctm.data.AttributeData;
+import darwin.jopenctm.data.Mesh;
+import darwin.jopenctm.errorhandling.InvalidDataException;
+import darwin.jopenctm.io.CtmFileWriter;
 import ie.dcu.model.GridCell;
 import ie.dcu.model.MCLookUpTables;
 import ie.dcu.model.Point3D;
@@ -29,10 +36,16 @@ public class MCPolygons {
 	public List<Triangle3D> triangles;
 	public List<Triangle3D> trilist;
 	public List<Point3D> triNormallist;
+	//CTM Data 
+	public float[] verticesCTM;
+	public int[] indicesCTM;
+	public float[] normalsCTM;
+	public AttributeData[] texcoordinates ={};
+	public AttributeData[] attributes = {};
+	
 	public int normalTriangle;
 	public boolean closesides = true;
-	File newFile;
-	FileWriter fileWriter;
+	OutputStream fop = null;
 	File folderData = null;
 	int totalTriangle = 0;
 	ImageProcessUtil imageProcess = new ImageProcessUtil();
@@ -82,11 +95,16 @@ public class MCPolygons {
 					rawImage);
 		}
 		try {
-			writeVertices();
-			writeNormals();
-			writeFaces();
+
+			saveVerticesCTM();
+			saveNormalsCTM();
+			saveIndicesCTM();
+			createCTMFile();
 			// freeDataStructures();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InvalidDataException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		long end = System.currentTimeMillis();
@@ -94,44 +112,50 @@ public class MCPolygons {
 				"Total time to process the data set  : " + (float) ((end - start) / 1000f) + " seconds");
 	}
 
-	private Integer getImageNumber(String filename) {
-        String[] fileName = filename.split(".png");
-        return Integer.parseInt(fileName[0]);
+	private void createCTMFile() throws IOException, InvalidDataException {
+		Mesh newM = new Mesh(verticesCTM, normalsCTM, indicesCTM, texcoordinates, attributes);
+		MeshEncoder mg2Encode = new MG2Encoder();
+		CtmFileWriter writer = new CtmFileWriter(fop, mg2Encode);
+		writer.encode(newM, "Reconstructed the file");
 	}
 
-	private void writeVertices() throws IOException {
-		for (Iterator<Triangle3D> iterator = trilist.iterator(); iterator.hasNext();) {
-			Triangle3D triangle3d = (Triangle3D) iterator.next();
-			fileWriter
-					.write("v " + triangle3d.points[0].x + " " + triangle3d.points[0].y + " " + triangle3d.points[0].z);
-			fileWriter.write("\n");
-			fileWriter
-					.write("v " + triangle3d.points[1].x + " " + triangle3d.points[1].y + " " + triangle3d.points[1].z);
-			fileWriter.write("\n");
-			fileWriter
-					.write("v " + triangle3d.points[2].x + " " + triangle3d.points[2].y + " " + triangle3d.points[2].z);
-			fileWriter.write("\n");
+	private void saveVerticesCTM() throws IOException {
+		int triCount = trilist.size();
+		verticesCTM = new float[triCount*9];
+		System.out.println("triCount" + triCount);
+		System.out.println("verticesCTM" + verticesCTM.length);
+		for (int triIndx = 0,vertIndx = 0; triIndx < triCount; triIndx++) {
+			verticesCTM[vertIndx++] = trilist.get(triIndx).points[0].x;
+			verticesCTM[vertIndx++] = trilist.get(triIndx).points[0].y;
+			verticesCTM[vertIndx++] = trilist.get(triIndx).points[0].z;
+			verticesCTM[vertIndx++] = trilist.get(triIndx).points[1].x;
+			verticesCTM[vertIndx++] = trilist.get(triIndx).points[1].y;
+			verticesCTM[vertIndx++] = trilist.get(triIndx).points[1].z;
+			verticesCTM[vertIndx++] = trilist.get(triIndx).points[2].x;
+			verticesCTM[vertIndx++] = trilist.get(triIndx).points[2].y;
+			verticesCTM[vertIndx++] = trilist.get(triIndx).points[2].z;
 		}
 	}
 
-	private void writeNormals() throws IOException {
-		for (Iterator<Point3D> iterator = triNormallist.iterator(); iterator.hasNext();) {
-			Point3D pointNormal = (Point3D) iterator.next();
-			fileWriter.write("vn " + pointNormal.x + " " + pointNormal.y + " " + pointNormal.z);
-			fileWriter.write("\n");
+	private void saveNormalsCTM() throws IOException {
+		int nCount = triNormallist.size();
+		normalsCTM = new float[verticesCTM.length];
+		for (int i = 0; i < nCount; i+=3) {
+			normalsCTM[i] = triNormallist.get(i).x;
+			normalsCTM[i+1] = triNormallist.get(i).y;
+			normalsCTM[i+2] = triNormallist.get(i).z;
 		}
 	}
 
-	private void writeFaces() throws IOException {
+	private void saveIndicesCTM() throws IOException {
+		int indiceCount = trilist.size()*3;
+		indicesCTM = new int[indiceCount];
+		for (int i = 0; i < indiceCount; i+=3) {
+			indicesCTM[i] = i;
+			indicesCTM[i+1] = i+1;
+			indicesCTM[i+2] = i+2;
+		}
 		System.out.println(trilist.size());
-		int i = 1;
-		for (int j = 0; j < trilist.size(); j++) {
-			fileWriter.write("f " + i + " " + (i + 1) + " " + (i + 2));
-			fileWriter.write("\n");
-			i += 3;
-		}
-		fileWriter.flush();
-		fileWriter.close();
 	}
 
 	private void generateMarchingCubePolygons(GridCell gridCell) {
@@ -405,8 +429,7 @@ public class MCPolygons {
 		triNormallist = new ArrayList<Point3D>();
 		trilist.clear();
 		try {
-			newFile = new File("bunny.obj");
-			fileWriter = new FileWriter(newFile);
+			fop = new FileOutputStream("bunny.ctm");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
