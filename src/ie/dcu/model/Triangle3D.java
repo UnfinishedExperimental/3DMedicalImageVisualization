@@ -1,5 +1,7 @@
  package ie.dcu.model;
 
+import java.util.Arrays;
+
 /*
  * Triangle3D.java
  * Declares a Triangle with Three 3D point in space
@@ -11,6 +13,31 @@ public class Triangle3D {
 		for (int i = 0; i < 3; i++) {
 			points[i] = new Point3D();
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(points);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Triangle3D other = (Triangle3D) obj;
+		if (points[0].equals(other.points[0])
+				&& points[1].equals(other.points[1])
+				&& points[2].equals(other.points[2])) {
+			return true;
+		}
+		return false;
 	}
 
 	public Triangle3D(Triangle3D trian) {

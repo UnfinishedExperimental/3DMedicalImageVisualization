@@ -10,8 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -33,9 +34,9 @@ import ie.dcu.ui.ImageConstants;
 public class MCPolygons {
 	// obj data
 
-	public List<Triangle3D> triangles;
-	public List<Triangle3D> trilist;
-	public List<Point3D> triNormallist;
+	public Set<Triangle3D> triangles;
+	public Set<Triangle3D> triTotalSet;
+	public Set<Point3D> triNormalSet;
 	//CTM Data 
 	public float[] verticesCTM;
 	public int[] indicesCTM;
@@ -95,7 +96,6 @@ public class MCPolygons {
 					rawImage);
 		}
 		try {
-
 			saveVerticesCTM();
 			saveNormalsCTM();
 			saveIndicesCTM();
@@ -120,53 +120,62 @@ public class MCPolygons {
 	}
 
 	private void saveVerticesCTM() throws IOException {
-		int triCount = trilist.size();
+		int triCount = triTotalSet.size();
 		verticesCTM = new float[triCount*9];
-		System.out.println("triCount" + triCount);
-		System.out.println("verticesCTM" + verticesCTM.length);
-		for (int triIndx = 0,vertIndx = 0; triIndx < triCount; triIndx++) {
-			verticesCTM[vertIndx++] = trilist.get(triIndx).points[0].x;
-			verticesCTM[vertIndx++] = trilist.get(triIndx).points[0].y;
-			verticesCTM[vertIndx++] = trilist.get(triIndx).points[0].z;
-			verticesCTM[vertIndx++] = trilist.get(triIndx).points[1].x;
-			verticesCTM[vertIndx++] = trilist.get(triIndx).points[1].y;
-			verticesCTM[vertIndx++] = trilist.get(triIndx).points[1].z;
-			verticesCTM[vertIndx++] = trilist.get(triIndx).points[2].x;
-			verticesCTM[vertIndx++] = trilist.get(triIndx).points[2].y;
-			verticesCTM[vertIndx++] = trilist.get(triIndx).points[2].z;
-		}
+		//System.out.println("triCount" + triCount);
+		//System.out.println("verticesCTM" + verticesCTM.length);
+		Iterator<Triangle3D> itr = triTotalSet.iterator();
+		int vertIndx= 0;
+        while(itr.hasNext()){
+        	Triangle3D trian = itr.next();
+            verticesCTM[vertIndx++] = trian.points[0].x;
+			verticesCTM[vertIndx++] = trian.points[0].y;
+			verticesCTM[vertIndx++] = trian.points[0].z;
+			verticesCTM[vertIndx++] = trian.points[1].x;
+			verticesCTM[vertIndx++] = trian.points[1].y;
+			verticesCTM[vertIndx++] = trian.points[1].z;
+			verticesCTM[vertIndx++] = trian.points[2].x;
+			verticesCTM[vertIndx++] = trian.points[2].y;
+			verticesCTM[vertIndx++] = trian.points[2].z;
+        }
 	}
 
 	private void saveNormalsCTM() throws IOException {
-		int nCount = triNormallist.size();
 		normalsCTM = new float[verticesCTM.length];
-		for (int i = 0; i < nCount; i+=3) {
-			normalsCTM[i] = triNormallist.get(i).x;
-			normalsCTM[i+1] = triNormallist.get(i).y;
-			normalsCTM[i+2] = triNormallist.get(i).z;
-		}
+		int normIndx= 0;
+		Iterator<Point3D> itr = triNormalSet.iterator();
+        while(itr.hasNext()){
+        	Point3D point = itr.next();
+        	normalsCTM[normIndx] = point.x;
+			normalsCTM[normIndx+1] = point.y;
+			normalsCTM[normIndx+2] = point.z;
+			normIndx += 3;
+        }
 	}
 
 	private void saveIndicesCTM() throws IOException {
-		int indiceCount = trilist.size()*3;
+		int indiceCount = triTotalSet.size()*3;
 		indicesCTM = new int[indiceCount];
-		for (int i = 0; i < indiceCount; i+=3) {
-			indicesCTM[i] = i;
-			indicesCTM[i+1] = i+1;
-			indicesCTM[i+2] = i+2;
+		for (int indicesIndx = 0; indicesIndx < indiceCount; indicesIndx+=3) {
+			indicesCTM[indicesIndx] = indicesIndx;
+			indicesCTM[indicesIndx+1] = indicesIndx+1;
+			indicesCTM[indicesIndx+2] = indicesIndx+2;
 		}
-		System.out.println(trilist.size());
+		System.out.println("Total number of triangles are : " + triTotalSet.size());
 	}
 
 	private void generateMarchingCubePolygons(GridCell gridCell) {
 		int numberTriangles = Polygonise(gridCell);
 		// calc tri norms
-		for (int indx = 0; indx < numberTriangles; indx++) {
-			triNormallist.add(triangles.get(indx).calcnormal());
-		}
+		Iterator<Triangle3D> itr = triangles.iterator();
+        while(itr.hasNext()){
+        	Triangle3D trian = itr.next();
+            triNormalSet.add(trian.calcnormal());
+        }
+        // Keep counting the total number of triangles
 		totalTriangle += numberTriangles;
 		for (Triangle3D triangle : triangles) {
-			trilist.add(triangle);
+			triTotalSet.add(triangle);
 		}
 		triangles.clear();
 	}
@@ -424,10 +433,10 @@ public class MCPolygons {
 	}
 
 	private void initResolution() {
-		triangles = new ArrayList<Triangle3D>();
-		trilist = new ArrayList<Triangle3D>();
-		triNormallist = new ArrayList<Point3D>();
-		trilist.clear();
+		triangles = new LinkedHashSet<Triangle3D>();
+		triTotalSet = new LinkedHashSet<Triangle3D>();
+		triNormalSet = new LinkedHashSet<Point3D>();
+		triTotalSet.clear();
 		try {
 			fop = new FileOutputStream("bunny.ctm");
 		} catch (FileNotFoundException e) {
