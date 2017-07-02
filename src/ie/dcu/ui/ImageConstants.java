@@ -9,12 +9,13 @@ public class ImageConstants {
 	public final static int DIMENTION = 512;
 	
 	public static final float ISO_VALUE = 127.0f;
+	public static final float CENTER = 256.0f;
 	public static final int COLUMNS = 512;
 	public static final int ROWS = 512;
 	public static final int THRESHOLD = 127;
 	public static final int BLACK = 0;
 	public static final int WHITE = 255;
-	
+
 	public static final String FF_DATA_FOLDER = "TestImageData";
 	public static final String RAW_DATA_FOLDER = "bunnyData";
 /*	// Marching cube Edge Lookup Table
