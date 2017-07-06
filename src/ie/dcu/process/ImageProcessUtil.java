@@ -177,7 +177,7 @@ public class ImageProcessUtil {
 				int sample = pixelDataLocal[sampleIndexLocal++] & 0x0FFF;
 				sample = (((sample - minLocal) * 255) / (maxLocal - minLocal)) + 0;
 				double distance = Math.sqrt(Math.pow(x-ImageConstants.CENTER, 2) + Math.pow(y-ImageConstants.CENTER, 2) );
-				if(distance < ImageConstants.CENTER) {
+				if(distance < ImageConstants.CENTER*0.80) {
 					interpolationData.put(new Point3D(x, y, sliceNumber), (float) sample);
 				} else {
 					interpolationData.put(new Point3D(x, y, sliceNumber), (float) ImageConstants.BLACK);
