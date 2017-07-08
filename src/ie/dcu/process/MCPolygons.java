@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -44,7 +45,9 @@ public class MCPolygons {
  	public AttributeData[] attributes = {};
  	
  	OutputStream fop = null;
- 	
+ 	File newFile;
+	FileWriter fileWriter;
+	
 	public int normalTriangle;
 	public boolean closesides = true;
 	File folderData = null;
@@ -95,16 +98,59 @@ public class MCPolygons {
 			initializeCubeGridCreation(fileSelections[i].getName(), fileSelections[i + 1].getName(), i, currentDir,
 					rawImage);
 		}
-		saveVerticesCTM();
+/*		saveVerticesCTM();
 		saveNormalsCTM();
 		saveIndicesCTM();
-		createCTMFile();
+		createCTMFile();*/
+		try {
+			writeVertices();
+			writeNormals();
+			writeFaces();
+			//freeDataStructures();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		long end = System.currentTimeMillis();
 		System.out.println(triTotalSet.size());
 		JOptionPane.showMessageDialog(null,
 				"Total time to process the data set  : " + (float) ((end - start) / 1000f) + " seconds");
 	}
 
+
+	private void writeVertices() throws IOException {
+		for (Iterator<Triangle3D> iterator = triTotalSet.iterator(); iterator.hasNext();) {
+			Triangle3D triangle3d = (Triangle3D) iterator.next();
+			fileWriter.write("v " + triangle3d.points[0].x + " " + triangle3d.points[0].y + " "
+					+ triangle3d.points[0].z);
+			fileWriter.write("\n");
+			fileWriter.write("v " + triangle3d.points[1].x + " " + triangle3d.points[1].y + " "
+					+ triangle3d.points[1].z);
+			fileWriter.write("\n");
+			fileWriter.write("v " + triangle3d.points[2].x + " " + triangle3d.points[2].y + " "
+					+ triangle3d.points[2].z);
+			fileWriter.write("\n");
+		}
+	}
+	
+	private void writeNormals() throws IOException {
+		for (Iterator<Point3D> iterator = triNormalSet.iterator(); iterator.hasNext();) {
+			Point3D pointNormal = (Point3D) iterator.next();
+			fileWriter.write("vn " + pointNormal.x + " " + pointNormal.y + " "
+					+ pointNormal.z);
+			fileWriter.write("\n");
+		}
+	}
+	private void writeFaces() throws IOException {
+		int i = 1;
+		for (int j = 0; j < triTotalSet.size(); j++) {
+			fileWriter.write("f " + i + " " + (i+1) + " " + (i+2));
+			fileWriter.write("\n");
+			i+=3;
+		}
+		fileWriter.flush();
+		fileWriter.close();
+	}
+	
 	private void createCTMFile() {
  		try {
  			Mesh newM = new Mesh(verticesCTM, normalsCTM, indicesCTM, texcoordinates, attributes);
@@ -438,8 +484,13 @@ public class MCPolygons {
 		triNormalSet = new LinkedHashSet<Point3D>();
 		triTotalSet.clear();
 		try {
-			fop = new FileOutputStream("bunny.ctm");
+			//fop = new FileOutputStream("bunny.ctm");
+			newFile = new File("bunny.obj");
+			fileWriter = new FileWriter(newFile);
 		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
