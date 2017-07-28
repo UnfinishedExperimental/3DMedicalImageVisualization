@@ -25,6 +25,7 @@ import darwin.jopenctm.data.AttributeData;
 import darwin.jopenctm.data.Mesh;
 import darwin.jopenctm.errorhandling.InvalidDataException;
 import darwin.jopenctm.io.CtmFileWriter;
+import darwin.jopenctm.io.CtmOutputStream;
 import ie.dcu.model.GridCell;
 import ie.dcu.model.MCLookUpTables;
 import ie.dcu.model.Point3D;
@@ -44,9 +45,9 @@ public class MCPolygons {
  	public AttributeData[] texcoordinates ={};
  	public AttributeData[] attributes = {};
  	
- 	OutputStream fop = null;
- 	File newFile;
-	FileWriter fileWriter;
+	//File streams
+	OutputStream fop = null;
+	CtmOutputStream cos = null;
 	
 	public int normalTriangle;
 	public boolean closesides = true;
@@ -75,7 +76,7 @@ public class MCPolygons {
 	 * }
 	 */
 
-	public void initiateMCProcess(File[] fileSelections, String currentDir, boolean rawImage) {
+	public void initiateMCProcess(File[] fileSelections, String currentDir, String dataFolder, boolean rawImage) {
 		int totalSlices = fileSelections.length;
 		if(rawImage) {
 			Arrays.sort(fileSelections, new Comparator<File>() {
@@ -95,21 +96,21 @@ public class MCPolygons {
 		initResolution();
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < totalSlices - 1; i++) {
-			initializeCubeGridCreation(fileSelections[i].getName(), fileSelections[i + 1].getName(), i, currentDir,
+			initializeCubeGridCreation(fileSelections[i].getName(), fileSelections[i + 1].getName(), i, currentDir, dataFolder, 
 					rawImage);
 		}
-/*		saveVerticesCTM();
+		saveVerticesCTM();
 		saveNormalsCTM();
 		saveIndicesCTM();
-		createCTMFile();*/
-		try {
+		createCTMFile();
+/*		try {
 			writeVertices();
 			writeNormals();
 			writeFaces();
 			//freeDataStructures();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 		long end = System.currentTimeMillis();
 		System.out.println(triTotalSet.size());
 		JOptionPane.showMessageDialog(null,
@@ -117,7 +118,7 @@ public class MCPolygons {
 	}
 
 
-	private void writeVertices() throws IOException {
+/*	private void writeVertices() throws IOException {
 		for (Iterator<Triangle3D> iterator = triTotalSet.iterator(); iterator.hasNext();) {
 			Triangle3D triangle3d = (Triangle3D) iterator.next();
 			fileWriter.write("v " + triangle3d.points[0].x + " " + triangle3d.points[0].y + " "
@@ -149,7 +150,7 @@ public class MCPolygons {
 		}
 		fileWriter.flush();
 		fileWriter.close();
-	}
+	}*/
 	
 	private void createCTMFile() {
  		try {
@@ -339,12 +340,19 @@ public class MCPolygons {
 		return new Point3D(px, py, pz);
 	}
 
-	public void initializeCubeGridCreation(String firstFile, String secondFile, int index, String currentDir,
+	public void initializeCubeGridCreation(String firstFile, String secondFile, int index, String currentDir, String dataFolder, 
 			boolean rawImage) {
 		GridCell gridCell = new GridCell();
 		Map<Point3D, Float> interpolationData = null;
 		if (rawImage) {
-			interpolationData = imageProcess.saveInterpolationPoints(firstFile, secondFile, index, currentDir);
+			if(dataFolder == ImageConstants.BUNNY_DATA_CT) {
+				ImageConstants.ROWS = 512;
+				ImageConstants.COLUMNS = 512;
+			} else if(dataFolder == ImageConstants.HEAD_DATA_CT) {
+				ImageConstants.ROWS = 256;
+				ImageConstants.COLUMNS = 256;
+			}
+			interpolationData = imageProcess.saveInterpolationPoints(firstFile, secondFile, index, currentDir, dataFolder);
 			for (int i = 0; i < ImageConstants.ROWS - 1; i++) {
 				for (int j = 0; j < ImageConstants.COLUMNS - 1; j++) {
 					// Point 0
@@ -402,7 +410,7 @@ public class MCPolygons {
 			interpolationData.clear();
 		} else { // The files selected are image files(e.g. png, jpg) and NOT RAW images
 			try {
-				folderData = new File(currentDir + "\\" + ImageConstants.FF_DATA_FOLDER);
+				folderData = new File(currentDir + "\\" + ImageConstants.BUNNY_DATA_CT);
 				int sample1[] = new int[4];
 				int sample2[] = new int[4];
 				BufferedImage image1 = ImageIO.read(new File(folderData + "\\" + firstFile));
@@ -485,13 +493,10 @@ public class MCPolygons {
 		triTotalSet.clear();
 		try {
 			//fop = new FileOutputStream("bunny.ctm");
-			newFile = new File("bunny.obj");
-			fileWriter = new FileWriter(newFile);
+			fop = new FileOutputStream("bunny.ctm");
+			cos = new CtmOutputStream(fop);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 	}
 }

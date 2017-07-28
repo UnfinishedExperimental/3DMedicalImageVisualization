@@ -68,10 +68,10 @@ public class ImageProcessUtil {
 		}
 		sampleIndex = 0;
 		pixelData = null;
-		new FloodFill().floodFill(image, new Point(0, 0), Color.WHITE, Color.BLACK);
+/*		new FloodFill().floodFill(image, new Point(0, 0), Color.WHITE, Color.BLACK);
 		new FloodFill().floodFill(image, new Point(0, 500), Color.WHITE, Color.BLACK);
 		new FloodFill().floodFill(image, new Point(500, 0), Color.WHITE, Color.BLACK);
-		new FloodFill().floodFill(image, new Point(500, 500), Color.WHITE, Color.BLACK);
+		new FloodFill().floodFill(image, new Point(500, 500), Color.WHITE, Color.BLACK);*/
 		ImageIcon imageIcon = new ImageIcon(image); // load the image to a
 													// imageIcon
 		return imageIcon;
@@ -136,20 +136,20 @@ public class ImageProcessUtil {
 		}	
 	}
 */
-	public Map<Point3D, Float> saveInterpolationPoints(String firstFile, String secondFile, int sliceNumber, String currentDir) {
+	public Map<Point3D, Float> saveInterpolationPoints(String firstFile, String secondFile, int sliceNumber, String currentDir, String dataFolder) {
 		Map<Point3D, Float> interpolationData = new HashMap<Point3D, Float>();
-		saveOneSliceperIteration(firstFile, sliceNumber, interpolationData, currentDir);
-		saveOneSliceperIteration(secondFile, sliceNumber+1, interpolationData, currentDir);
+		saveOneSliceperIteration(firstFile, sliceNumber, interpolationData, currentDir, dataFolder);
+		saveOneSliceperIteration(secondFile, sliceNumber+1, interpolationData, currentDir, dataFolder);
 		return interpolationData;
 	}
 
-	private void saveOneSliceperIteration(String fileName, int sliceNumber, Map<Point3D, Float> interpolationData, String currentDir) {
+	private void saveOneSliceperIteration(String fileName, int sliceNumber, Map<Point3D, Float> interpolationData, String currentDir, String dataFolder) {
 		int[] pixelDataLocal = null;
 		int sampleIndexLocal = 0;
 		int minLocal = 0;
 		int maxLocal = 0;
 		byte[] byteArray = null;
-		File rawImageFile = new File(currentDir  + "\\" + ImageConstants.RAW_DATA_FOLDER+ "\\" +fileName);
+		File rawImageFile = new File(currentDir  + "\\" + dataFolder+ "\\" +fileName);
 		try {
 			byteArray = com.google.common.io.Files.toByteArray(rawImageFile);
 			pixelDataLocal = new int[byteArray.length/2];

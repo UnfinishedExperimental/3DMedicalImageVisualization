@@ -174,13 +174,15 @@ public class ImageViewer extends JFrame {
 					return Integer.parseInt(f1.getName())-Integer.parseInt(f2.getName());
 		        }
 			});
+			String[] pathDataFolder = chooser.getCurrentDirectory().toString().split("\\\\");
+			System.out.println("dataFolder:::" + pathDataFolder[pathDataFolder.length-1]);
 			imageSlider.setMaximum(ImageConstants.SLIDE_MAX - 1);
 			imageProcess.imageFileProcess(true, 0, fileSelections[0].toString());
 			int dialogButton = JOptionPane.YES_NO_OPTION;
 			int dialogResult = JOptionPane.showConfirmDialog(this, "Would you like to create the obj file ? (This will take a while)", "Generate Obj", dialogButton);
 			if(dialogResult == 0) {
 				MCPolygons marchingCube= new MCPolygons();
-				marchingCube.initiateMCProcess(fileSelections, currentDir, true);
+				marchingCube.initiateMCProcess(fileSelections, currentDir, pathDataFolder[pathDataFolder.length-1], true);
 			} 
 		}
 		animButton.setEnabled(true);
