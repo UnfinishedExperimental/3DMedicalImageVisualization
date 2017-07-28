@@ -114,7 +114,7 @@ public class ImageViewer extends JFrame {
 			}
 		}); // end timer construction
 		
-		mcButton = new JButton("Open .obj file");
+		mcButton = new JButton("Open .CTM file");
 		mcButton.setEnabled(false);
 		mcButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -175,7 +175,14 @@ public class ImageViewer extends JFrame {
 		        }
 			});
 			String[] pathDataFolder = chooser.getCurrentDirectory().toString().split("\\\\");
-			System.out.println("dataFolder:::" + pathDataFolder[pathDataFolder.length-1]);
+			String dataFolder = pathDataFolder[pathDataFolder.length-1];
+			if(dataFolder == ImageConstants.BUNNY_DATA_CT) {
+				ImageConstants.ROWS = 512;
+				ImageConstants.COLUMNS = 512;
+			} else if(dataFolder == ImageConstants.HEAD_DATA_CT) {
+				ImageConstants.ROWS = 256;
+				ImageConstants.COLUMNS = 256;
+			}
 			imageSlider.setMaximum(ImageConstants.SLIDE_MAX - 1);
 			imageProcess.imageFileProcess(true, 0, fileSelections[0].toString());
 			int dialogButton = JOptionPane.YES_NO_OPTION;

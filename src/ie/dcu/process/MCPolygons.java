@@ -93,7 +93,7 @@ public class MCPolygons {
 				}
 			});
 		}
-		initResolution();
+		initResolution(dataFolder);
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < totalSlices - 1; i++) {
 			initializeCubeGridCreation(fileSelections[i].getName(), fileSelections[i + 1].getName(), i, currentDir, dataFolder, 
@@ -345,13 +345,6 @@ public class MCPolygons {
 		GridCell gridCell = new GridCell();
 		Map<Point3D, Float> interpolationData = null;
 		if (rawImage) {
-			if(dataFolder == ImageConstants.BUNNY_DATA_CT) {
-				ImageConstants.ROWS = 512;
-				ImageConstants.COLUMNS = 512;
-			} else if(dataFolder == ImageConstants.HEAD_DATA_CT) {
-				ImageConstants.ROWS = 256;
-				ImageConstants.COLUMNS = 256;
-			}
 			interpolationData = imageProcess.saveInterpolationPoints(firstFile, secondFile, index, currentDir, dataFolder);
 			for (int i = 0; i < ImageConstants.ROWS - 1; i++) {
 				for (int j = 0; j < ImageConstants.COLUMNS - 1; j++) {
@@ -486,14 +479,14 @@ public class MCPolygons {
 		}
 	}
 
-	private void initResolution() {
+	private void initResolution(String dataFolder) {
 		triangleSet = new LinkedHashSet<Triangle3D>();
 		triTotalSet = new LinkedHashSet<Triangle3D>();
 		triNormalSet = new LinkedHashSet<Point3D>();
 		triTotalSet.clear();
 		try {
 			//fop = new FileOutputStream("bunny.ctm");
-			fop = new FileOutputStream("bunny.ctm");
+			fop = new FileOutputStream(dataFolder + ".ctm");
 			cos = new CtmOutputStream(fop);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
