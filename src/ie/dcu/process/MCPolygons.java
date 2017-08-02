@@ -162,6 +162,15 @@ public class MCPolygons {
 			e.printStackTrace();
 		} catch (InvalidDataException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				fop.flush();
+				fop.close();
+				cos.flush();
+				cos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}
