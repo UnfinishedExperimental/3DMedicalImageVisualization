@@ -7,11 +7,11 @@ public class ImageConstants {
 	public static int SLIDE_INIT = 0;
 	// Medical image size settings
 	public final static int DIMENTION = 512;
-	
+
 	public static final float ISO_VALUE = 127.0f;
-	public static final float CENTER = 256.0f;
-	public static int COLUMNS = 512;
-	public static int ROWS = 512;
+	public static int COLUMNS = DIMENTION;
+	public static int ROWS = DIMENTION;
+	public static final float CENTER = COLUMNS * 0.5f;
 	public static final int THRESHOLD = 127;
 	public static final int BLACK = 0;
 	public static final int WHITE = 255;
