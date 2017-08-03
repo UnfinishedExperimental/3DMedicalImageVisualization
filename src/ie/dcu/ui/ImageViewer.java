@@ -174,7 +174,7 @@ public class ImageViewer extends JFrame {
 					return Integer.parseInt(f1.getName())-Integer.parseInt(f2.getName());
 		        }
 			});
-			String[] pathDataFolder = chooser.getCurrentDirectory().toString().split("\\\\");
+			String[] pathDataFolder = chooser.getCurrentDirectory().toString().split("/");
 			String dataFolder = pathDataFolder[pathDataFolder.length-1];
 			if(dataFolder == ImageConstants.BUNNY_DATA_CT) {
 				ImageConstants.ROWS = 512;

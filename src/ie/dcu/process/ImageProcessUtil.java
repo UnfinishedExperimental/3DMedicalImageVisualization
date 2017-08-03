@@ -14,6 +14,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import ie.dcu.model.Interpolated;
 import ie.dcu.model.Point3D;
 import ie.dcu.ui.ImageConstants;
 
@@ -26,8 +27,7 @@ public class ImageProcessUtil {
 	// This method is used for displaying the images in ImageViewer
 	public ImageIcon imageFileProcess(boolean changeEvent, int sliceNumber, String imageFile) {
 		File rawImageFile = new File(imageFile);
-		try {
-			InputStream inputStream = new FileInputStream(rawImageFile);
+		try (InputStream inputStream = new FileInputStream(rawImageFile)){
 			// System.out.println("File Size of Image:: " +
 			// rawImageFile.length());
 			pixelData = readBitsPerWord((int) rawImageFile.length(), inputStream);
@@ -68,88 +68,24 @@ public class ImageProcessUtil {
 		}
 		sampleIndex = 0;
 		pixelData = null;
-/*		new FloodFill().floodFill(image, new Point(0, 0), Color.WHITE, Color.BLACK);
-		new FloodFill().floodFill(image, new Point(0, 500), Color.WHITE, Color.BLACK);
-		new FloodFill().floodFill(image, new Point(500, 0), Color.WHITE, Color.BLACK);
-		new FloodFill().floodFill(image, new Point(500, 500), Color.WHITE, Color.BLACK);*/
 		ImageIcon imageIcon = new ImageIcon(image); // load the image to a
 													// imageIcon
 		return imageIcon;
 	}
-/*
-	// This method is used for fetching data from raw images.
-	public void imageFilesFetchDataFF(int sliceNumber, File rawImageFile, String currentDir) {
-		int[] pixelData = new int[512*512];
-		InputStream inStream = null;
-		try {
-			inStream = new FileInputStream(rawImageFile);
-			pixelData = readBitsPerWord((int) rawImageFile.length(), inStream);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		imageFilesCreateImageFF(inStream, pixelData, sliceNumber, currentDir);
-	}
 
-	// This method is used for creating the FloodFill images from raw images.
-	private void imageFilesCreateImageFF(InputStream inStream, int[] pixelData, int sliceNumber, String currentDir) {
-		BufferedImage image = new BufferedImage(ImageConstants.COLUMNS, ImageConstants.ROWS,
-				BufferedImage.TYPE_INT_ARGB);
-		int sampleIndexLocal = 0;
-		int minLocal = 0;
-		int maxLocal = 0;
-		for (int y = 0; y < ImageConstants.ROWS; y++) {
-			for (int x = 0; x < ImageConstants.COLUMNS; x++) {
-				int sample = pixelData[sampleIndexLocal++] & 0x0FFF;
-				if (sample < minLocal) {
-					minLocal = sample;
-				}
-				if (sample > maxLocal) {
-					maxLocal = sample;
-				}
-			}
-		}
-		sampleIndexLocal = 0;
-		for (int y = 0; y < ImageConstants.ROWS; y++) {
-			for (int x = 0; x < ImageConstants.COLUMNS; x++) {
-				int sample = pixelData[sampleIndexLocal++] & 0x0FFF;
-				sample = (((sample - minLocal) * 255) / (maxLocal - minLocal)) + 0;
-				if(sample<ImageConstants.THRESHOLD) {
-					sample = ImageConstants.BLACK;
-				} else {
-					sample = ImageConstants.WHITE;
-				}
-				image.setRGB(x, y, 0xff000000 | (sample << 16) | (sample << 8) | sample);
-			}
-		}
-		sampleIndexLocal = 0;
-		pixelData = null;
-		new FloodFill().floodFill(image, new Point(0, 0), Color.WHITE, Color.BLACK);
-		new FloodFill().floodFill(image, new Point(0, 500), Color.WHITE, Color.BLACK);
-		new FloodFill().floodFill(image, new Point(500, 0), Color.WHITE, Color.BLACK);
-		new FloodFill().floodFill(image, new Point(500, 500), Color.WHITE, Color.BLACK);
-		try {
-			ImageIO.write(image, "png", new File(currentDir + "\\" + ImageConstants.FF_DATA_FOLDER + "\\" +  (sliceNumber+1) + ".png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}	
-	}
-*/
-	public Map<Point3D, Float> saveInterpolationPoints(String firstFile, String secondFile, int sliceNumber, String currentDir, String dataFolder) {
-		Map<Point3D, Float> interpolationData = new HashMap<Point3D, Float>();
-		saveOneSliceperIteration(firstFile, sliceNumber, interpolationData, currentDir, dataFolder);
-		saveOneSliceperIteration(secondFile, sliceNumber+1, interpolationData, currentDir, dataFolder);
+	public Interpolated saveInterpolationPoints(String firstFile, String secondFile, String currentDir, String dataFolder) {
+		Interpolated interpolationData = new Interpolated(ImageConstants.ROWS, ImageConstants.COLUMNS, 2);
+		saveOneSliceperIteration(firstFile, 0, interpolationData, currentDir, dataFolder);
+		saveOneSliceperIteration(secondFile, 1, interpolationData, currentDir, dataFolder);
 		return interpolationData;
 	}
 
-	private void saveOneSliceperIteration(String fileName, int sliceNumber, Map<Point3D, Float> interpolationData, String currentDir, String dataFolder) {
+	private void saveOneSliceperIteration(String fileName, int sliceNumber, Interpolated interpolationData, String currentDir, String dataFolder) {
 		int[] pixelDataLocal = null;
-		int sampleIndexLocal = 0;
 		int minLocal = 0;
 		int maxLocal = 0;
 		byte[] byteArray = null;
-		File rawImageFile = new File(currentDir  + "\\" + dataFolder+ "\\" +fileName);
+		File rawImageFile = new File(currentDir  + "/" + dataFolder+ "/" +fileName);
 		try {
 			byteArray = com.google.common.io.Files.toByteArray(rawImageFile);
 			pixelDataLocal = new int[byteArray.length/2];
@@ -163,7 +99,7 @@ public class ImageProcessUtil {
 			e.printStackTrace();
 		}
 		for (int y = 0; y < ImageConstants.ROWS*ImageConstants.COLUMNS; y++) {
-			int sample = pixelDataLocal[sampleIndexLocal++];
+			int sample = pixelDataLocal[y];
 			if (sample < minLocal) {
 				minLocal = sample;
 			}
@@ -171,21 +107,18 @@ public class ImageProcessUtil {
 				maxLocal = sample;
 			}
 		}
-		sampleIndexLocal = 0;
 		for (int y = 0; y < ImageConstants.ROWS; y++) {
 			for (int x = 0; x < ImageConstants.COLUMNS; x++) {
-				int sample = pixelDataLocal[sampleIndexLocal++] & 0x0FFF;
+				int sample = pixelDataLocal[x+y*ImageConstants.COLUMNS] & 0x0FFF;
 				sample = (((sample - minLocal) * 255) / (maxLocal - minLocal)) + 0;
 				double distance = Math.sqrt(Math.pow(x-ImageConstants.CENTER, 2) + Math.pow(y-ImageConstants.CENTER, 2) );
 				if(distance < ImageConstants.CENTER*0.80) {
-					interpolationData.put(new Point3D(x, y, sliceNumber), (float) sample);
+					interpolationData.set(x, y, sliceNumber, (float) sample);
 				} else {
-					interpolationData.put(new Point3D(x, y, sliceNumber), (float) ImageConstants.BLACK);
+					interpolationData.set(x, y, sliceNumber, (float) ImageConstants.BLACK);
 				}
 			}
 		}
-		sampleIndexLocal = 0;
-		pixelDataLocal = null;
 	}
 	
 	public int[] readBitsPerWord(int fileLength, InputStream inputStream) throws IOException {

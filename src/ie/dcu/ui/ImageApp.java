@@ -1,6 +1,6 @@
 package ie.dcu.ui;
 
-import javax.swing.UIManager;
+import javax.swing.*;
 
 public class ImageApp {
 	public static void main(String args[]) {
